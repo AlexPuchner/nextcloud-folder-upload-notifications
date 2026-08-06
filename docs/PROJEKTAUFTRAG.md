@@ -141,7 +141,9 @@ Prioritäten: **Muss** = MVP, **Soll** = Version 1.0, **Kann** = später.
 
 ### 7.4 Kompatibilität
 
-Die aktuelle offizielle Dokumentation führt Nextcloud 34 als neueste und 32/33 als stabile Versionen. Der geplante Startkorridor ist deshalb Nextcloud 32 bis 34. Vor Beginn der Implementierung wird die konkrete Version der Zielinstanz erfasst und als erste Referenzplattform festgelegt. Die endgültige PHP- und Datenbankmatrix wird aus den offiziellen Anforderungen dieser Serverversionen abgeleitet.
+Die aktuelle offizielle Dokumentation führt Nextcloud 34 als neueste und 32/33 als weitere unterstützte Versionen. Der öffentlich unterstützte Startkorridor ist deshalb Nextcloud 32 bis 34. Die zuletzt bekannte Zielinstanz verwendet Nextcloud 31.0.2.1. Damit die App bereits während der Entwicklung dort installierbar bleibt, lautet die technische App-Kompatibilität zunächst 31 bis 34. Nextcloud 31 ist jedoch seit Februar 2026 End of Life und wird nicht als sichere Produktionsplattform freigegeben. Vor dem Betatest muss die Zielinstanz mindestens auf eine noch unterstützte Hauptversion aktualisiert werden.
+
+Als niedrigste PHP-Laufzeit wird PHP 8.1 verwendet. Nextcloud 31/32 unterstützen PHP 8.1 bis 8.4, Nextcloud 33/34 PHP 8.2 bis 8.5. Die CI prüft den gemeinsamen, für den jeweiligen Server zulässigen Bereich. Datenbanktyp und Storage-Backend der Zielinstanz werden vor der ersten Installation mit `occ` erfasst.
 
 Unterstützte Speicherarten im MVP:
 
@@ -428,13 +430,13 @@ Das MVP gilt als fertig, wenn:
 
 | Entscheidung | vorgeschlagener Standard | Status |
 |---|---|---|
-| genaue Nextcloud-Zielversion | aktuelle Version der vorhandenen Instanz als primäre Referenz | offen; Versionsnummer erforderlich |
-| Repository-Sichtbarkeit | öffentlich | vorgeschlagen |
-| Lizenz | AGPL-3.0-or-later | vorgeschlagen |
-| rekursiv als Standard | ja | vorgeschlagen |
-| eigene Uploads als Standard | nein | vorgeschlagen |
-| Verschieben/Kopieren im MVP | nein, erst nach stabiler Dateierstellung | vorgeschlagen |
-| App-Store-Veröffentlichung | nach erfolgreicher Beta | vorgeschlagen |
+| genaue Nextcloud-Zielversion | zuletzt bekannt 31.0.2.1; vor Beta Upgrade auf unterstützte Version | entschieden; Ist-Stand vor Installation erneut prüfen |
+| Repository-Sichtbarkeit | öffentlich | entschieden |
+| Lizenz | AGPL-3.0-or-later | entschieden |
+| rekursiv als Standard | ja | entschieden |
+| eigene Uploads als Standard | nein | entschieden |
+| Verschieben/Kopieren im MVP | nein, erst nach stabiler Dateierstellung | entschieden |
+| App-Store-Veröffentlichung | nach erfolgreicher Beta | entschieden |
 
 ## 18. Quellen und technische Grundlage
 
