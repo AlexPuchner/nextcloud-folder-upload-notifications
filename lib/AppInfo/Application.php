@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\FolderUploadNotifications\AppInfo;
 
 use OCA\FolderUploadNotifications\Listener\NodeCreatedListener;
+use OCA\FolderUploadNotifications\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -26,6 +27,7 @@ final class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(NodeCreatedEvent::class, NodeCreatedListener::class);
+		$context->registerNotifierService(Notifier::class);
 	}
 
 	public function boot(IBootContext $context): void {
