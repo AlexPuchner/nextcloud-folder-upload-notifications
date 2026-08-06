@@ -22,6 +22,7 @@ class SubscriptionAccessValidator {
 			$folder = $this->folderResolver->resolveAccessibleFolder(
 				$subscription->getUserId(),
 				$subscription->getFolderFileId(),
+				$subscription->getStorageId(),
 			);
 		} catch (\Throwable) {
 			return false;

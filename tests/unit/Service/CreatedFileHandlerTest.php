@@ -15,8 +15,10 @@ use OCA\FolderUploadNotifications\Dto\AncestorFolder;
 use OCA\FolderUploadNotifications\Service\ActorResolver;
 use OCA\FolderUploadNotifications\Service\AncestorCollector;
 use OCA\FolderUploadNotifications\Service\CreatedFileHandler;
+use OCA\FolderUploadNotifications\Service\FileAccessUserResolver;
 use OCA\FolderUploadNotifications\Service\NotificationPublisher;
 use OCA\FolderUploadNotifications\Service\SubscriptionAccessValidator;
+use OCA\FolderUploadNotifications\Service\SubscriptionPathMatcher;
 use OCP\Files\File;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -67,6 +69,48 @@ final class CreatedFileHandlerTest extends TestCase {
 		$this->handler($collector, $mapper, $actor, $validator, $publisher)->handle($file);
 	}
 
+	public function testMatchesSharedFileThroughSubscribersVirtualParent(): void {
+		$file = $this->createMock(File::class);
+		$subscription = $this->subscription('alex', false);
+		$subscription->setId(77);
+
+		$collector = $this->createMock(AncestorCollector::class);
+		$collector->method('collect')
+			->willReturn([new AncestorFolder('home::sabi', 100, true)]);
+		$mapper = $this->createMock(SubscriptionMapper::class);
+		$mapper->method('findMatchingForAncestors')->willReturn([]);
+		$mapper->expects(self::once())
+			->method('findAllForUsers')
+			->with(['alex'])
+			->willReturn([$subscription]);
+		$actor = $this->createMock(ActorResolver::class);
+		$actor->method('resolveUserId')->willReturn('sabi');
+		$fileAccessUsers = $this->createMock(FileAccessUserResolver::class);
+		$fileAccessUsers->method('resolve')->with($file)->willReturn(['alex']);
+		$pathMatcher = $this->createMock(SubscriptionPathMatcher::class);
+		$pathMatcher->expects(self::once())
+			->method('matches')
+			->with($subscription, $file)
+			->willReturn(true);
+		$validator = $this->createMock(SubscriptionAccessValidator::class);
+		$validator->method('canReceive')->with($subscription)->willReturn(true);
+		$publisher = $this->createMock(NotificationPublisher::class);
+		$publisher->expects(self::once())
+			->method('publish')
+			->with($file, ['alex'], 'sabi');
+
+		$this->handler(
+			$collector,
+			$mapper,
+			$actor,
+			$validator,
+			$publisher,
+			null,
+			$fileAccessUsers,
+			$pathMatcher,
+		)->handle($file);
+	}
+
 	public function testFailureIsLoggedAndDoesNotEscapeListener(): void {
 		$file = $this->createMock(File::class);
 		$collector = $this->createMock(AncestorCollector::class);
@@ -93,11 +137,15 @@ final class CreatedFileHandlerTest extends TestCase {
 		SubscriptionAccessValidator $validator,
 		NotificationPublisher $publisher,
 		?LoggerInterface $logger = null,
+		?FileAccessUserResolver $fileAccessUserResolver = null,
+		?SubscriptionPathMatcher $subscriptionPathMatcher = null,
 	): CreatedFileHandler {
 		return new CreatedFileHandler(
 			$collector,
 			$mapper,
 			$actor,
+			$fileAccessUserResolver ?? $this->createMock(FileAccessUserResolver::class),
+			$subscriptionPathMatcher ?? $this->createMock(SubscriptionPathMatcher::class),
 			$validator,
 			$publisher,
 			$logger ?? $this->createMock(LoggerInterface::class),

@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 bis M4 abgeschlossen und auf Nextcloud 33 live getestet; M5-Einstellungsoberfläche implementiert, Livetest ausstehend
+> Projektstatus: M0 bis M4 abgeschlossen und auf Nextcloud 33 live getestet; M5-Einstellungsoberfläche live getestet; Share-Mount-Fix `0.4.0-alpha.2` bereit für den Livetest
 
 ## Zielbild
 
@@ -14,7 +14,7 @@ Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei
 - stabile Abonnements auch nach Umbenennen oder Verschieben eines Ordners
 - kein Polling, kein Ordner-Scan und kein dauerhaft laufender Prozess
 
-Die App reagiert auf Nextclouds `NodeCreatedEvent`. Erst wenn Nextcloud tatsächlich eine Datei anlegt, wird der Listener ausgeführt. Die Zuordnung zu Abonnements erfolgt über interne Datei-/Speicher-IDs und indexierte Datenbankabfragen.
+Die App reagiert auf Nextclouds `NodeCreatedEvent`. Erst wenn Nextcloud tatsächlich eine Datei anlegt, wird der Listener ausgeführt. Die Zuordnung zu Abonnements erfolgt zuerst über interne Datei-/Speicher-IDs und indexierte Datenbankabfragen. Bei Freigabe-Mounts wird die Datei zusätzlich nur für die aktuell berechtigten Empfänger in deren sichtbarem Dateibaum aufgelöst, damit auch abonnierte virtuelle Sammelordner korrekt funktionieren.
 
 ## Planung
 
@@ -50,7 +50,8 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 - [x] M2: Abonnement-Backend und CRUD-API; Livetest auf Nextcloud 33 bestanden
 - [x] M3: Event- und Matching-Kern; Fremd- und Eigen-Upload-Filter live getestet
 - [x] M4: native Benachrichtigungen; Glockenmeldung auf Nextcloud 33 live getestet
-- [ ] M5: persönliche Einstellungsseite implementiert; Livetest auf Nextcloud 33 ausstehend
+- [x] M5: persönliche Einstellungsseite; Ordnerauswahl, Optionen und Löschen live getestet
+- [ ] M5.1: abonnierte virtuelle Share-Sammelordner; Fix implementiert, Livetest auf Nextcloud 33 ausstehend
 
 ## Bedienung
 

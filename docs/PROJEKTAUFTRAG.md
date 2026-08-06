@@ -206,6 +206,8 @@ Anschließend sucht eine einzige indexierte Abfrage:
 
 Die Laufzeit hängt damit von der Ordnertiefe, nicht von der Zahl oder Größe der enthaltenen Dateien ab.
 
+Freigaben können im Dateibaum des Empfängers unter einem virtuellen Sammelordner eingehängt sein, der in der Elternkette des hochladenden Benutzers nicht existiert. Für diesen Mount-Grenzfall wird über die öffentliche Share-API zunächst die begrenzte Menge der aktuell zugriffsberechtigten lokalen Benutzer ermittelt. Nur deren Abonnements werden zusätzlich geladen. Die neue Datei wird anschließend per File-ID in der jeweiligen Benutzersicht aufgelöst und ihr relativer Pfad gegen den abonnierten Ordner geprüft. Auch dieser Fallback liest keine Verzeichnisinhalte und durchsucht keine Dateien.
+
 ### 8.5 Datenmodell – Entwurf
 
 Tabelle: `*PREFIX*folder_upload_subs`

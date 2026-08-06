@@ -24,7 +24,11 @@ class FolderResolver {
 	/**
 	 * Resolves a file ID only inside the current user's visible file tree.
 	 */
-	public function resolveAccessibleFolder(string $userId, int $folderFileId): ResolvedFolder {
+	public function resolveAccessibleFolder(
+		string $userId,
+		int $folderFileId,
+		?string $requiredStorageId = null,
+	): ResolvedFolder {
 		$userFolder = $this->rootFolder->getUserFolder($userId);
 		$nodes = $userFolder->getId() === $folderFileId
 			? [$userFolder]
@@ -32,7 +36,8 @@ class FolderResolver {
 
 		foreach ($nodes as $node) {
 			if (!$node instanceof Folder
-				|| ($node->getPermissions() & Constants::PERMISSION_READ) === 0) {
+				|| ($node->getPermissions() & Constants::PERMISSION_READ) === 0
+				|| ($requiredStorageId !== null && $node->getStorage()->getId() !== $requiredStorageId)) {
 				continue;
 			}
 

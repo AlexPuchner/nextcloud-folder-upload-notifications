@@ -5,7 +5,7 @@
 	<name>Folder Upload Notifications</name>
 	<summary>Subscribe to folders and get notified about new files</summary>
 	<description><![CDATA[Subscribe to individual folders and receive native Nextcloud notifications when new files are uploaded. The app is event-driven and does not scan folders in the background.]]></description>
-	<version>0.4.0-alpha.1</version>
+	<version>0.4.0-alpha.2</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author homepage="https://github.com/AlexPuchner">AlexPuchner</author>
 	<namespace>FolderUploadNotifications</namespace>

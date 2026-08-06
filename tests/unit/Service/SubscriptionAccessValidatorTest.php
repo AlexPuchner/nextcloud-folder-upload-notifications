@@ -20,7 +20,7 @@ final class SubscriptionAccessValidatorTest extends TestCase {
 	public function testAcceptsMatchingAccessibleFolder(): void {
 		$resolver = $this->createMock(FolderResolver::class);
 		$resolver->method('resolveAccessibleFolder')
-			->with('alice', 42)
+			->with('alice', 42, 'home::alice')
 			->willReturn(new ResolvedFolder('home::alice', 42, '/Poster'));
 
 		self::assertTrue((new SubscriptionAccessValidator($resolver))->canReceive(

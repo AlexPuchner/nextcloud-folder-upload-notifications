@@ -38,6 +38,30 @@ class SubscriptionMapper extends QBMapper {
 	}
 
 	/**
+	 * @param list<string> $userIds
+	 * @return list<Subscription>
+	 */
+	public function findAllForUsers(array $userIds): array {
+		$userIds = array_values(array_unique(array_filter(
+			$userIds,
+			static fn (string $userId): bool => $userId !== '',
+		)));
+		if ($userIds === []) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in(
+				'user_id',
+				$qb->createNamedParameter($userIds, IQueryBuilder::PARAM_STR_ARRAY),
+			));
+
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * @throws DoesNotExistException
 	 */
 	public function findForUser(int $id, string $userId): Subscription {

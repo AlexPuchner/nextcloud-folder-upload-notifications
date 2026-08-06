@@ -210,7 +210,7 @@ async function confirmDelete(): Promise<void> {
 					<NcButton
 						variant="tertiary"
 						:disabled="savingIds.has(subscription.id)"
-						:aria-label="t(APP_ID, 'Remove subscription for {folder}', { folder: subscription.displayPath })"
+						:ariaLabel="t(APP_ID, 'Remove subscription for {folder}', { folder: subscription.displayPath })"
 						@click="subscriptionToDelete = subscription">
 						<template #icon>
 							<DeleteOutlineIcon :size="20" />
