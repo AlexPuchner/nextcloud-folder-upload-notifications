@@ -36,6 +36,8 @@ export async function createSubscription(
 			folderFileId,
 			recursive: true,
 			notifyOwnUploads: false,
+			notifyPush: true,
+			notifyEmail: false,
 		},
 		requestConfig,
 	)
@@ -51,6 +53,8 @@ export async function updateSubscription(
 		{
 			recursive: subscription.recursive,
 			notifyOwnUploads: subscription.notifyOwnUploads,
+			notifyPush: subscription.notifyPush,
+			notifyEmail: subscription.notifyEmail,
 		},
 		requestConfig,
 	)

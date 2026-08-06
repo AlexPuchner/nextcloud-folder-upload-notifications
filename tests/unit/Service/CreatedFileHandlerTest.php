@@ -15,6 +15,7 @@ use OCA\FolderUploadNotifications\Dto\AncestorFolder;
 use OCA\FolderUploadNotifications\Service\ActorResolver;
 use OCA\FolderUploadNotifications\Service\AncestorCollector;
 use OCA\FolderUploadNotifications\Service\CreatedFileHandler;
+use OCA\FolderUploadNotifications\Service\EmailPublisher;
 use OCA\FolderUploadNotifications\Service\FileAccessUserResolver;
 use OCA\FolderUploadNotifications\Service\NotificationPublisher;
 use OCA\FolderUploadNotifications\Service\SubscriptionAccessValidator;
@@ -45,8 +46,22 @@ final class CreatedFileHandlerTest extends TestCase {
 		$publisher->expects(self::once())
 			->method('publish')
 			->with($file, ['bob'], 'alice');
+		$emailPublisher = $this->createMock(EmailPublisher::class);
+		$emailPublisher->expects(self::once())
+			->method('publish')
+			->with($file, [], 'alice');
 
-		$this->handler($collector, $mapper, $actor, $validator, $publisher)->handle($file);
+		$this->handler(
+			$collector,
+			$mapper,
+			$actor,
+			$validator,
+			$publisher,
+			null,
+			null,
+			null,
+			$emailPublisher,
+		)->handle($file);
 	}
 
 	public function testOwnUploadCanBeEnabled(): void {
@@ -65,8 +80,22 @@ final class CreatedFileHandlerTest extends TestCase {
 		$publisher->expects(self::once())
 			->method('publish')
 			->with($file, ['alice'], 'alice');
+		$emailPublisher = $this->createMock(EmailPublisher::class);
+		$emailPublisher->expects(self::once())
+			->method('publish')
+			->with($file, [], 'alice');
 
-		$this->handler($collector, $mapper, $actor, $validator, $publisher)->handle($file);
+		$this->handler(
+			$collector,
+			$mapper,
+			$actor,
+			$validator,
+			$publisher,
+			null,
+			null,
+			null,
+			$emailPublisher,
+		)->handle($file);
 	}
 
 	public function testMatchesSharedFileThroughSubscribersVirtualParent(): void {
@@ -98,6 +127,10 @@ final class CreatedFileHandlerTest extends TestCase {
 		$publisher->expects(self::once())
 			->method('publish')
 			->with($file, ['alex'], 'sabi');
+		$emailPublisher = $this->createMock(EmailPublisher::class);
+		$emailPublisher->expects(self::once())
+			->method('publish')
+			->with($file, [], 'sabi');
 
 		$this->handler(
 			$collector,
@@ -108,6 +141,49 @@ final class CreatedFileHandlerTest extends TestCase {
 			null,
 			$fileAccessUsers,
 			$pathMatcher,
+			$emailPublisher,
+		)->handle($file);
+	}
+
+	public function testRoutesAndCombinesDeliveryChannelsPerUser(): void {
+		$file = $this->createMock(File::class);
+		$pushOnly = $this->subscription('bob', false);
+		$emailOnly = $this->subscription('carol', false);
+		$emailOnly->setNotifyPush(false);
+		$emailOnly->setNotifyEmail(true);
+		$bothFromSecondMatch = $this->subscription('bob', false);
+		$bothFromSecondMatch->setNotifyPush(false);
+		$bothFromSecondMatch->setNotifyEmail(true);
+
+		$collector = $this->createMock(AncestorCollector::class);
+		$collector->method('collect')
+			->willReturn([new AncestorFolder('home::alice', 42, true)]);
+		$mapper = $this->createMock(SubscriptionMapper::class);
+		$mapper->method('findMatchingForAncestors')
+			->willReturn([$pushOnly, $emailOnly, $bothFromSecondMatch]);
+		$actor = $this->createMock(ActorResolver::class);
+		$actor->method('resolveUserId')->willReturn('alice');
+		$validator = $this->createMock(SubscriptionAccessValidator::class);
+		$validator->method('canReceive')->willReturn(true);
+		$pushPublisher = $this->createMock(NotificationPublisher::class);
+		$pushPublisher->expects(self::once())
+			->method('publish')
+			->with($file, ['bob'], 'alice');
+		$emailPublisher = $this->createMock(EmailPublisher::class);
+		$emailPublisher->expects(self::once())
+			->method('publish')
+			->with($file, ['carol', 'bob'], 'alice');
+
+		$this->handler(
+			$collector,
+			$mapper,
+			$actor,
+			$validator,
+			$pushPublisher,
+			null,
+			null,
+			null,
+			$emailPublisher,
 		)->handle($file);
 	}
 
@@ -139,6 +215,7 @@ final class CreatedFileHandlerTest extends TestCase {
 		?LoggerInterface $logger = null,
 		?FileAccessUserResolver $fileAccessUserResolver = null,
 		?SubscriptionPathMatcher $subscriptionPathMatcher = null,
+		?EmailPublisher $emailPublisher = null,
 	): CreatedFileHandler {
 		return new CreatedFileHandler(
 			$collector,
@@ -148,6 +225,7 @@ final class CreatedFileHandlerTest extends TestCase {
 			$subscriptionPathMatcher ?? $this->createMock(SubscriptionPathMatcher::class),
 			$validator,
 			$publisher,
+			$emailPublisher ?? $this->createMock(EmailPublisher::class),
 			$logger ?? $this->createMock(LoggerInterface::class),
 		);
 	}
@@ -156,6 +234,8 @@ final class CreatedFileHandlerTest extends TestCase {
 		$subscription = new Subscription();
 		$subscription->setUserId($userId);
 		$subscription->setNotifyOwnUploads($notifyOwnUploads);
+		$subscription->setNotifyPush(true);
+		$subscription->setNotifyEmail(false);
 
 		return $subscription;
 	}

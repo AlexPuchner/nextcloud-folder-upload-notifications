@@ -24,6 +24,7 @@ class CreatedFileHandler {
 		private readonly SubscriptionPathMatcher $subscriptionPathMatcher,
 		private readonly SubscriptionAccessValidator $accessValidator,
 		private readonly NotificationPublisher $notificationPublisher,
+		private readonly EmailPublisher $emailPublisher,
 		private readonly LoggerInterface $logger,
 	) {
 	}
@@ -70,8 +71,8 @@ class CreatedFileHandler {
 			return;
 		}
 
-		/** @var array<string, true> $recipients */
-		$recipients = [];
+		/** @var array<string, array{push: bool, email: bool}> $deliveries */
+		$deliveries = [];
 
 		foreach ($subscriptionsById as $subscription) {
 			$userId = $subscription->getUserId();
@@ -80,16 +81,49 @@ class CreatedFileHandler {
 				continue;
 			}
 
+			if (!$subscription->getNotifyPush() && !$subscription->getNotifyEmail()) {
+				continue;
+			}
+
 			if (!$this->accessValidator->canReceive($subscription)) {
 				continue;
 			}
 
-			$recipients[$userId] = true;
+			$deliveries[$userId] ??= ['push' => false, 'email' => false];
+			$deliveries[$userId]['push'] = $deliveries[$userId]['push']
+				|| $subscription->getNotifyPush();
+			$deliveries[$userId]['email'] = $deliveries[$userId]['email']
+				|| $subscription->getNotifyEmail();
 		}
 
-		$this->notificationPublisher->publish(
+		$pushRecipientUserIds = [];
+		$emailRecipientUserIds = [];
+		foreach ($deliveries as $userId => $channels) {
+			if ($channels['push']) {
+				$pushRecipientUserIds[] = $userId;
+			}
+			if ($channels['email']) {
+				$emailRecipientUserIds[] = $userId;
+			}
+		}
+
+		try {
+			$this->notificationPublisher->publish(
+				$file,
+				$pushRecipientUserIds,
+				$actorUserId,
+			);
+		} catch (\Throwable $exception) {
+			// A failed push must not prevent the independently selected email
+			// channel from being delivered.
+			$this->logger->error('Failed to publish folder upload push notification', [
+				'app' => Application::APP_ID,
+				'exception' => $exception,
+			]);
+		}
+		$this->emailPublisher->publish(
 			$file,
-			array_keys($recipients),
+			$emailRecipientUserIds,
 			$actorUserId,
 		);
 	}

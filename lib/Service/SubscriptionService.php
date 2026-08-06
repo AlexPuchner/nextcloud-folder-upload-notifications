@@ -36,6 +36,8 @@ class SubscriptionService {
 		int $folderFileId,
 		bool $recursive,
 		bool $notifyOwnUploads,
+		bool $notifyPush,
+		bool $notifyEmail,
 	): Subscription {
 		if ($folderFileId <= 0) {
 			throw new \InvalidArgumentException('Folder file ID must be positive');
@@ -60,6 +62,8 @@ class SubscriptionService {
 		$subscription->setDisplayPath($folder->displayPath);
 		$subscription->setRecursive($recursive);
 		$subscription->setNotifyOwnUploads($notifyOwnUploads);
+		$subscription->setNotifyPush($notifyPush);
+		$subscription->setNotifyEmail($notifyEmail);
 		$subscription->setUpdatedAt($timestamp);
 
 		if ($subscription->getId() === null) {
@@ -82,6 +86,8 @@ class SubscriptionService {
 				$subscription->setDisplayPath($folder->displayPath);
 				$subscription->setRecursive($recursive);
 				$subscription->setNotifyOwnUploads($notifyOwnUploads);
+				$subscription->setNotifyPush($notifyPush);
+				$subscription->setNotifyEmail($notifyEmail);
 				$subscription->setUpdatedAt($timestamp);
 
 				return $this->mapper->update($subscription);
@@ -96,10 +102,14 @@ class SubscriptionService {
 		int $id,
 		bool $recursive,
 		bool $notifyOwnUploads,
+		bool $notifyPush,
+		bool $notifyEmail,
 	): Subscription {
 		$subscription = $this->findForUser($id, $userId);
 		$subscription->setRecursive($recursive);
 		$subscription->setNotifyOwnUploads($notifyOwnUploads);
+		$subscription->setNotifyPush($notifyPush);
+		$subscription->setNotifyEmail($notifyEmail);
 		$subscription->setUpdatedAt($this->timeFactory->getTime());
 
 		return $this->mapper->update($subscription);

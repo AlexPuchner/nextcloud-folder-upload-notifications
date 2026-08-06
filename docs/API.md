@@ -29,7 +29,9 @@ Content-Type: application/json
 {
   "folderFileId": 42,
   "recursive": true,
-  "notifyOwnUploads": false
+  "notifyOwnUploads": false,
+  "notifyPush": true,
+  "notifyEmail": false
 }
 ```
 
@@ -45,7 +47,9 @@ Content-Type: application/json
 
 {
   "recursive": false,
-  "notifyOwnUploads": true
+  "notifyOwnUploads": true,
+  "notifyPush": false,
+  "notifyEmail": true
 }
 ```
 
@@ -67,9 +71,16 @@ revealing whether another user's subscription exists.
   "displayPath": "/Poster",
   "recursive": true,
   "notifyOwnUploads": false,
+  "notifyPush": true,
+  "notifyEmail": false,
   "createdAt": 1786053600,
   "updatedAt": 1786053600
 }
 ```
 
 The internal storage ID and owner ID are intentionally not returned.
+
+`notifyPush` creates a native Nextcloud notification. It is shown in the web
+notification menu and is forwarded to registered mobile clients by Nextcloud's
+notification app. `notifyEmail` sends an immediate message through Nextcloud's
+configured mailer to the email address in the subscription owner's profile.

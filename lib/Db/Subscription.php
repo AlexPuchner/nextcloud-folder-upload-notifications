@@ -27,6 +27,10 @@ use OCP\DB\Types;
  * @method void setRecursive(bool $recursive)
  * @method bool getNotifyOwnUploads()
  * @method void setNotifyOwnUploads(bool $notifyOwnUploads)
+ * @method bool getNotifyPush()
+ * @method void setNotifyPush(bool $notifyPush)
+ * @method bool getNotifyEmail()
+ * @method void setNotifyEmail(bool $notifyEmail)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $createdAt)
  * @method int getUpdatedAt()
@@ -39,6 +43,8 @@ class Subscription extends Entity {
 	protected string $displayPath = '';
 	protected bool $recursive = true;
 	protected bool $notifyOwnUploads = false;
+	protected bool $notifyPush = true;
+	protected bool $notifyEmail = false;
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 
@@ -47,6 +53,8 @@ class Subscription extends Entity {
 		$this->addType('folderFileId', Types::BIGINT);
 		$this->addType('recursive', Types::BOOLEAN);
 		$this->addType('notifyOwnUploads', Types::BOOLEAN);
+		$this->addType('notifyPush', Types::BOOLEAN);
+		$this->addType('notifyEmail', Types::BOOLEAN);
 		$this->addType('createdAt', Types::BIGINT);
 		$this->addType('updatedAt', Types::BIGINT);
 	}
@@ -58,6 +66,8 @@ class Subscription extends Entity {
 	 *     displayPath: string,
 	 *     recursive: bool,
 	 *     notifyOwnUploads: bool,
+	 *     notifyPush: bool,
+	 *     notifyEmail: bool,
 	 *     createdAt: int,
 	 *     updatedAt: int
 	 * }
@@ -69,6 +79,8 @@ class Subscription extends Entity {
 			'displayPath' => $this->getDisplayPath(),
 			'recursive' => $this->getRecursive(),
 			'notifyOwnUploads' => $this->getNotifyOwnUploads(),
+			'notifyPush' => $this->getNotifyPush(),
+			'notifyEmail' => $this->getNotifyEmail(),
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),
 		];

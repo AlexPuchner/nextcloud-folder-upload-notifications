@@ -26,6 +26,8 @@ final class SubscriptionControllerTest extends TestCase {
 		$subscription->setDisplayPath('/Poster');
 		$subscription->setRecursive(true);
 		$subscription->setNotifyOwnUploads(false);
+		$subscription->setNotifyPush(true);
+		$subscription->setNotifyEmail(false);
 		$subscription->setCreatedAt(1000);
 		$subscription->setUpdatedAt(1000);
 
@@ -44,7 +46,7 @@ final class SubscriptionControllerTest extends TestCase {
 		$service = $this->createMock(SubscriptionService::class);
 		$service->expects(self::once())
 			->method('updateForUser')
-			->with('alice', 99, true, false)
+			->with('alice', 99, true, false, true, false)
 			->willThrowException(new SubscriptionNotFoundException());
 
 		$this->expectException(OCSNotFoundException::class);

@@ -2,12 +2,14 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 bis M4 abgeschlossen und auf Nextcloud 33 live getestet; M5-Einstellungsoberfläche live getestet; Share-Mount-Fix `0.4.0-alpha.2` bereit für den Livetest
+> Projektstatus: M0 bis M5 einschließlich Share-Mount-Fix auf Nextcloud 33 live getestet; kanalbezogene Zustellung per Push und E-Mail in `0.4.0-alpha.3` implementiert
 
 ## Zielbild
 
 - Ordner direkt in der Dateien-App abonnieren und wieder abbestellen
-- Benachrichtigungen über Nextcloud-Glocke und vorhandene Push-Kanäle
+- Push und E-Mail pro Ordnerabonnement getrennt konfigurierbar
+- Push über Nextcloud-Glocke und vorhandene mobile Push-Kanäle
+- E-Mail über den zentral konfigurierten Nextcloud-Mailer
 - Unterstützung eigener und geteilter Ordner
 - rekursive Überwachung optional pro Abonnement
 - eigene Uploads standardmäßig ausblenden
@@ -51,11 +53,12 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 - [x] M3: Event- und Matching-Kern; Fremd- und Eigen-Upload-Filter live getestet
 - [x] M4: native Benachrichtigungen; Glockenmeldung auf Nextcloud 33 live getestet
 - [x] M5: persönliche Einstellungsseite; Ordnerauswahl, Optionen und Löschen live getestet
-- [ ] M5.1: abonnierte virtuelle Share-Sammelordner; Fix implementiert, Livetest auf Nextcloud 33 ausstehend
+- [x] M5.1: abonnierte virtuelle Share-Sammelordner; Livetest auf Nextcloud 33 bestanden
+- [ ] M5.2: Push und E-Mail pro Abonnement; Implementierung bereit für den Livetest
 
 ## Bedienung
 
-Nach der Installation findet jeder Benutzer seine Ordnerabonnements unter **Profilbild → Persönliche Einstellungen → Ordner-Upload-Benachrichtigungen**. Dort lassen sich Ordner über den nativen Nextcloud-Dateidialog hinzufügen, Unterordner und eigene Uploads je Abo konfigurieren sowie Abos wieder entfernen.
+Nach der Installation findet jeder Benutzer seine Ordnerabonnements unter **Profilbild → Persönliche Einstellungen → Ordner-Upload-Benachrichtigungen**. Dort lassen sich Ordner über den nativen Nextcloud-Dateidialog hinzufügen, Push und E-Mail je Abo auswählen, Unterordner und eigene Uploads konfigurieren sowie Abos wieder entfernen. Für E-Mail-Benachrichtigungen müssen der zentrale Mailversand eingerichtet und im Benutzerprofil eine E-Mail-Adresse hinterlegt sein.
 
 Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md). Die OCS-Endpunkte sind in [`docs/API.md`](docs/API.md) dokumentiert.
 

@@ -22,6 +22,8 @@ final class SubscriptionTest extends TestCase {
 		$subscription->setDisplayPath('/Poster');
 		$subscription->setRecursive(true);
 		$subscription->setNotifyOwnUploads(false);
+		$subscription->setNotifyPush(true);
+		$subscription->setNotifyEmail(false);
 		$subscription->setCreatedAt(1000);
 		$subscription->setUpdatedAt(1100);
 
@@ -31,6 +33,8 @@ final class SubscriptionTest extends TestCase {
 			'displayPath' => '/Poster',
 			'recursive' => true,
 			'notifyOwnUploads' => false,
+			'notifyPush' => true,
+			'notifyEmail' => false,
 			'createdAt' => 1000,
 			'updatedAt' => 1100,
 		], $subscription->toArray());

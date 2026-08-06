@@ -47,12 +47,16 @@ final class SubscriptionServiceTest extends TestCase {
 			42,
 			true,
 			false,
+			true,
+			false,
 		);
 
 		self::assertSame(7, $result->getId());
 		self::assertSame('alice', $result->getUserId());
 		self::assertSame('home::alice', $result->getStorageId());
 		self::assertSame('/Poster', $result->getDisplayPath());
+		self::assertTrue($result->getNotifyPush());
+		self::assertFalse($result->getNotifyEmail());
 		self::assertSame(1000, $result->getCreatedAt());
 		self::assertSame(1000, $result->getUpdatedAt());
 	}
@@ -78,12 +82,16 @@ final class SubscriptionServiceTest extends TestCase {
 			42,
 			false,
 			true,
+			false,
+			true,
 		);
 
 		self::assertSame(7, $result->getId());
 		self::assertSame('/Renamed', $result->getDisplayPath());
 		self::assertFalse($result->getRecursive());
 		self::assertTrue($result->getNotifyOwnUploads());
+		self::assertFalse($result->getNotifyPush());
+		self::assertTrue($result->getNotifyEmail());
 		self::assertSame(900, $result->getCreatedAt());
 		self::assertSame(1200, $result->getUpdatedAt());
 	}
@@ -105,6 +113,8 @@ final class SubscriptionServiceTest extends TestCase {
 			99,
 			true,
 			false,
+			true,
+			false,
 		);
 	}
 
@@ -117,6 +127,8 @@ final class SubscriptionServiceTest extends TestCase {
 		$subscription->setDisplayPath('/Poster');
 		$subscription->setRecursive(true);
 		$subscription->setNotifyOwnUploads(false);
+		$subscription->setNotifyPush(true);
+		$subscription->setNotifyEmail(false);
 		$subscription->setCreatedAt(900);
 		$subscription->setUpdatedAt(900);
 		$subscription->resetUpdatedFields();

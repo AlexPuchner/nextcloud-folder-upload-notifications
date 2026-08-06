@@ -50,6 +50,8 @@ class SubscriptionController extends OCSController {
 		int $folderFileId,
 		bool $recursive = true,
 		bool $notifyOwnUploads = false,
+		bool $notifyPush = true,
+		bool $notifyEmail = false,
 	): DataResponse {
 		try {
 			$subscription = $this->service->createForUser(
@@ -57,6 +59,8 @@ class SubscriptionController extends OCSController {
 				$folderFileId,
 				$recursive,
 				$notifyOwnUploads,
+				$notifyPush,
+				$notifyEmail,
 			);
 		} catch (FolderNotFoundException) {
 			throw new OCSNotFoundException('Folder not found or not accessible');
@@ -73,6 +77,8 @@ class SubscriptionController extends OCSController {
 		int $id,
 		bool $recursive,
 		bool $notifyOwnUploads,
+		bool $notifyPush = true,
+		bool $notifyEmail = false,
 	): DataResponse {
 		try {
 			$subscription = $this->service->updateForUser(
@@ -80,6 +86,8 @@ class SubscriptionController extends OCSController {
 				$id,
 				$recursive,
 				$notifyOwnUploads,
+				$notifyPush,
+				$notifyEmail,
 			);
 		} catch (SubscriptionNotFoundException) {
 			throw new OCSNotFoundException('Subscription not found');

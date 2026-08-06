@@ -109,7 +109,7 @@ async function openFolderPicker(): Promise<void> {
 
 async function changeOption(
 	subscription: Subscription,
-	changes: Partial<Pick<Subscription, 'recursive' | 'notifyOwnUploads'>>,
+	changes: Partial<Pick<Subscription, 'recursive' | 'notifyOwnUploads' | 'notifyPush' | 'notifyEmail'>>,
 ): Promise<void> {
 	const previous = { ...subscription }
 	Object.assign(subscription, changes)
@@ -129,6 +129,20 @@ async function changeOption(
 	} finally {
 		setSaving(subscription.id, false)
 	}
+}
+
+function notificationStatus(subscription: Subscription): string {
+	if (subscription.notifyPush && subscription.notifyEmail) {
+		return t(APP_ID, 'Push and email enabled')
+	}
+	if (subscription.notifyPush) {
+		return t(APP_ID, 'Push enabled')
+	}
+	if (subscription.notifyEmail) {
+		return t(APP_ID, 'Email enabled')
+	}
+
+	return t(APP_ID, 'Notifications paused')
 }
 
 function setSaving(id: number, saving: boolean): void {
@@ -169,6 +183,9 @@ async function confirmDelete(): Promise<void> {
 	<NcSettingsSection
 		:name="t(APP_ID, 'Folder upload notifications')"
 		:description="t(APP_ID, 'Choose the folders for which you want to be notified when new files are uploaded.')">
+		<p class="delivery-note">
+			{{ t(APP_ID, 'Push notifications appear in Nextcloud and, when enabled on the device, in the Nextcloud mobile app. Email requires an address in the user profile and a configured mail server.') }}
+		</p>
 		<div class="settings-actions">
 			<NcButton
 				variant="primary"
@@ -205,7 +222,7 @@ async function confirmDelete(): Promise<void> {
 					<FolderOutlineIcon :size="28" aria-hidden="true" />
 					<div class="subscription-title">
 						<h3>{{ subscription.displayPath }}</h3>
-						<span>{{ t(APP_ID, 'Notifications enabled') }}</span>
+						<span>{{ notificationStatus(subscription) }}</span>
 					</div>
 					<NcButton
 						variant="tertiary"
@@ -217,6 +234,26 @@ async function confirmDelete(): Promise<void> {
 						</template>
 					</NcButton>
 				</div>
+
+				<fieldset class="notification-channels">
+					<legend>{{ t(APP_ID, 'Notification channels') }}</legend>
+					<div class="notification-channel-options">
+						<NcCheckboxRadioSwitch
+							:model-value="subscription.notifyEmail"
+							type="checkbox"
+							:disabled="savingIds.has(subscription.id)"
+							@update:model-value="changeOption(subscription, { notifyEmail: $event })">
+							{{ t(APP_ID, 'Email') }}
+						</NcCheckboxRadioSwitch>
+						<NcCheckboxRadioSwitch
+							:model-value="subscription.notifyPush"
+							type="checkbox"
+							:disabled="savingIds.has(subscription.id)"
+							@update:model-value="changeOption(subscription, { notifyPush: $event })">
+							{{ t(APP_ID, 'Push') }}
+						</NcCheckboxRadioSwitch>
+					</div>
+				</fieldset>
 
 				<div class="subscription-options">
 					<NcCheckboxRadioSwitch
@@ -276,6 +313,12 @@ async function confirmDelete(): Promise<void> {
 	margin-block: 20px 24px;
 }
 
+.delivery-note {
+	max-width: 720px;
+	margin: 12px 0 0;
+	color: var(--color-text-maxcontrast);
+}
+
 .loading-state {
 	display: flex;
 	align-items: center;
@@ -331,6 +374,28 @@ async function confirmDelete(): Promise<void> {
 	font-size: 0.875rem;
 }
 
+.notification-channels {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	margin: 0;
+	padding: 16px 0;
+	border: 0;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.notification-channels legend {
+	padding: 0;
+	font-weight: 600;
+}
+
+.notification-channel-options {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+}
+
 .subscription-options {
 	display: grid;
 	gap: 4px;
@@ -357,6 +422,12 @@ async function confirmDelete(): Promise<void> {
 
 	.subscription-options p {
 		margin-left: 0;
+	}
+
+	.notification-channels {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 12px;
 	}
 }
 </style>

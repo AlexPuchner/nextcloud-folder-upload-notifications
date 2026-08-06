@@ -9,6 +9,8 @@ export interface Subscription {
 	displayPath: string
 	recursive: boolean
 	notifyOwnUploads: boolean
+	notifyPush: boolean
+	notifyEmail: boolean
 	createdAt: number
 	updatedAt: number
 }
