@@ -23,8 +23,7 @@ class CreatedFileHandler {
 		private readonly FileAccessUserResolver $fileAccessUserResolver,
 		private readonly SubscriptionPathMatcher $subscriptionPathMatcher,
 		private readonly SubscriptionAccessValidator $accessValidator,
-		private readonly NotificationPublisher $notificationPublisher,
-		private readonly EmailPublisher $emailPublisher,
+		private readonly NotificationBatchQueue $batchQueue,
 		private readonly LoggerInterface $logger,
 	) {
 	}
@@ -96,36 +95,7 @@ class CreatedFileHandler {
 				|| $subscription->getNotifyEmail();
 		}
 
-		$pushRecipientUserIds = [];
-		$emailRecipientUserIds = [];
-		foreach ($deliveries as $userId => $channels) {
-			if ($channels['push']) {
-				$pushRecipientUserIds[] = $userId;
-			}
-			if ($channels['email']) {
-				$emailRecipientUserIds[] = $userId;
-			}
-		}
-
-		try {
-			$this->notificationPublisher->publish(
-				$file,
-				$pushRecipientUserIds,
-				$actorUserId,
-			);
-		} catch (\Throwable $exception) {
-			// A failed push must not prevent the independently selected email
-			// channel from being delivered.
-			$this->logger->error('Failed to publish folder upload push notification', [
-				'app' => Application::APP_ID,
-				'exception' => $exception,
-			]);
-		}
-		$this->emailPublisher->publish(
-			$file,
-			$emailRecipientUserIds,
-			$actorUserId,
-		);
+		$this->batchQueue->enqueue($file, $deliveries, $actorUserId);
 	}
 
 	private function subscriptionKey(Subscription $subscription): string {

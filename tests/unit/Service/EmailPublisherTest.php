@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\FolderUploadNotifications\Tests\Unit\Service;
 
+use OCA\FolderUploadNotifications\Db\NotificationBatch;
 use OCA\FolderUploadNotifications\Service\EmailPublisher;
 use OCP\Files\File;
 use OCP\Files\Folder;
@@ -112,5 +113,73 @@ final class EmailPublisherTest extends TestCase {
 			$this->createMock(IURLGenerator::class),
 			$logger,
 		))->publish($this->createMock(File::class), ['bob'], null);
+	}
+
+	public function testSendsOneSummaryEmailForBatch(): void {
+		$folder = $this->createMock(Folder::class);
+		$folder->method('getId')->willReturn(42);
+		$folder->method('getName')->willReturn('Photos');
+		$folder->method('getPath')->willReturn('/bob/files/Shared/Photos');
+		$folder->method('isReadable')->willReturn(true);
+		$userFolder = $this->createMock(Folder::class);
+		$userFolder->method('getById')->with(42)->willReturn([$folder]);
+		$userFolder->method('getRelativePath')->willReturn('/Shared/Photos');
+		$rootFolder = $this->createMock(IRootFolder::class);
+		$rootFolder->method('getUserFolder')->with('bob')->willReturn($userFolder);
+
+		$recipient = $this->createMock(IUser::class);
+		$recipient->method('getEMailAddress')->willReturn('bob@example.com');
+		$recipient->method('getDisplayName')->willReturn('Bob');
+		$actor = $this->createMock(IUser::class);
+		$actor->method('getDisplayName')->willReturn('Alice');
+		$userManager = $this->createMock(IUserManager::class);
+		$userManager->method('get')->willReturnMap([
+			['bob', $recipient],
+			['alice', $actor],
+		]);
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			static fn (string $text, array $parameters = []): string => $parameters === []
+				? $text
+				: vsprintf($text, $parameters),
+		);
+		$l10nFactory = $this->createMock(IFactory::class);
+		$l10nFactory->method('getUserLanguage')->willReturn('en');
+		$l10nFactory->method('get')->willReturn($l10n);
+		$urlGenerator = $this->createMock(IURLGenerator::class);
+		$urlGenerator->method('linkToRouteAbsolute')
+			->willReturn('https://cloud.example/files/42');
+		$message = $this->createMock(IMessage::class);
+		$message->method('setTo')->willReturnSelf();
+		$message->expects(self::once())
+			->method('setSubject')
+			->with('Alice uploaded 50 files to Photos')
+			->willReturnSelf();
+		$message->expects(self::once())
+			->method('setPlainBody')
+			->with(self::callback(static fn (string $body): bool =>
+				str_contains($body, 'Number of files: 50')
+					&& str_contains($body, 'Path: /Shared/Photos')
+					&& str_contains($body, 'Open folder: https://cloud.example/files/42')
+			))
+			->willReturnSelf();
+		$mailer = $this->createMock(IMailer::class);
+		$mailer->method('createMessage')->willReturn($message);
+		$mailer->expects(self::once())->method('send')->with($message);
+		$batch = new NotificationBatch();
+		$batch->setId(7);
+		$batch->setRecipientUserId('bob');
+		$batch->setActorUserId('alice');
+		$batch->setFolderFileId(42);
+		$batch->setFileCount(50);
+
+		(new EmailPublisher(
+			$mailer,
+			$userManager,
+			$rootFolder,
+			$l10nFactory,
+			$urlGenerator,
+			$this->createMock(LoggerInterface::class),
+		))->publishBatch($batch);
 	}
 }

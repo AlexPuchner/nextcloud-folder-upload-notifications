@@ -86,6 +86,55 @@ final class NotifierTest extends TestCase {
 		)->prepare($this->notification(), 'en');
 	}
 
+	public function testPreparesBatchNotificationWithFolderLink(): void {
+		$folder = $this->createMock(Folder::class);
+		$folder->method('getName')->willReturn('Photos');
+		$folder->method('getPath')->willReturn('/bob/files/Shared/Photos');
+		$folder->method('isReadable')->willReturn(true);
+		$userFolder = $this->createMock(Folder::class);
+		$userFolder->method('getById')->with(42)->willReturn([$folder]);
+		$userFolder->method('getRelativePath')->willReturn('/Shared/Photos');
+		$rootFolder = $this->createMock(IRootFolder::class);
+		$rootFolder->method('getUserFolder')->with('bob')->willReturn($userFolder);
+		$actor = $this->createMock(IUser::class);
+		$actor->method('getUID')->willReturn('alice');
+		$actor->method('getDisplayName')->willReturn('Alice');
+		$userManager = $this->createMock(IUserManager::class);
+		$userManager->method('get')->with('alice')->willReturn($actor);
+		$url = $this->createMock(IURLGenerator::class);
+		$url->method('linkToRouteAbsolute')->willReturn('https://cloud.example/f/42');
+		$url->method('imagePath')->willReturn('/apps/folder_upload_notifications/img/app.svg');
+		$url->method('getAbsoluteURL')->willReturn('https://cloud.example/apps/folder_upload_notifications/img/app.svg');
+		$notification = $this->createMock(INotification::class);
+		$notification->method('getApp')->willReturn(Application::APP_ID);
+		$notification->method('getObjectType')->willReturn('folder');
+		$notification->method('getObjectId')->willReturn('42');
+		$notification->method('getSubject')->willReturn(Notifier::SUBJECT_FILES_CREATED);
+		$notification->method('getSubjectParameters')->willReturn([
+			'actorUserId' => 'alice',
+			'fileCount' => 50,
+		]);
+		$notification->method('getUser')->willReturn('bob');
+		$notification->expects(self::once())
+			->method('setParsedSubject')
+			->with('Alice uploaded 50 files to Photos')
+			->willReturnSelf();
+		$notification->expects(self::once())
+			->method('setRichSubject')
+			->with('{user} uploaded 50 files to {folder}', self::callback(
+				static fn (array $parameters): bool => $parameters['user']['id'] === 'alice'
+					&& $parameters['folder']['path'] === '/Shared/Photos',
+			))
+			->willReturnSelf();
+		$notification->method('setLink')->willReturnSelf();
+		$notification->method('setIcon')->willReturnSelf();
+
+		$result = $this->notifier($rootFolder, $userManager, $url)
+			->prepare($notification, 'en');
+
+		self::assertSame($notification, $result);
+	}
+
 	private function notification(): INotification {
 		$notification = $this->createMock(INotification::class);
 		$notification->method('getApp')->willReturn(Application::APP_ID);

@@ -11,6 +11,7 @@ namespace OCA\FolderUploadNotifications\Notification;
 
 use OCA\FolderUploadNotifications\AppInfo\Application;
 use OCP\Files\File;
+use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
 use OCP\IUser;
@@ -23,6 +24,7 @@ use OCP\Notification\UnknownNotificationException;
 
 class Notifier implements INotifier {
 	public const SUBJECT_FILE_CREATED = 'file_created';
+	public const SUBJECT_FILES_CREATED = 'files_created';
 
 	public function __construct(
 		private readonly IFactory $l10nFactory,
@@ -43,12 +45,26 @@ class Notifier implements INotifier {
 	}
 
 	public function prepare(INotification $notification, string $languageCode): INotification {
-		if ($notification->getApp() !== Application::APP_ID
-			|| $notification->getObjectType() !== 'file'
-			|| $notification->getSubject() !== self::SUBJECT_FILE_CREATED) {
+		if ($notification->getApp() !== Application::APP_ID) {
 			throw new UnknownNotificationException('Unhandled notification');
 		}
+		if ($notification->getObjectType() === 'file'
+			&& $notification->getSubject() === self::SUBJECT_FILE_CREATED) {
+			return $this->prepareSingleFile($notification, $languageCode);
+		}
 
+		if ($notification->getObjectType() === 'folder'
+			&& $notification->getSubject() === self::SUBJECT_FILES_CREATED) {
+			return $this->prepareBatch($notification, $languageCode);
+		}
+
+		throw new UnknownNotificationException('Unhandled notification');
+	}
+
+	private function prepareSingleFile(
+		INotification $notification,
+		string $languageCode,
+	): INotification {
 		$fileId = $notification->getObjectId();
 		if (!ctype_digit($fileId) || (int)$fileId <= 0) {
 			throw new UnknownNotificationException('Invalid file ID');
@@ -102,9 +118,81 @@ class Notifier implements INotifier {
 
 		return $notification
 			->setLink($fileParameter['link'])
-			->setIcon($this->urlGenerator->getAbsoluteURL(
-				$this->urlGenerator->imagePath(Application::APP_ID, 'app.svg'),
-			));
+			->setIcon($this->iconUrl());
+	}
+
+	private function prepareBatch(
+		INotification $notification,
+		string $languageCode,
+	): INotification {
+		$folderId = $notification->getObjectId();
+		if (!ctype_digit($folderId) || (int)$folderId <= 0) {
+			throw new UnknownNotificationException('Invalid folder ID');
+		}
+
+		$parameters = $notification->getSubjectParameters();
+		$fileCount = is_int($parameters['fileCount'] ?? null)
+			? $parameters['fileCount']
+			: 0;
+		if ($fileCount < 2) {
+			throw new UnknownNotificationException('Invalid batch size');
+		}
+
+		[$folder, $displayPath] = $this->resolveAccessibleFolder(
+			$notification->getUser(),
+			(int)$folderId,
+		);
+		$l = $this->l10nFactory->get(Application::APP_ID, $languageCode);
+		$link = $this->urlGenerator->linkToRouteAbsolute(
+			'files.viewcontroller.showFile',
+			['fileid' => (int)$folderId],
+		);
+		$folderParameter = [
+			'type' => 'file',
+			'id' => $folderId,
+			'name' => $folder->getName(),
+			'path' => $displayPath,
+			'link' => $link,
+		];
+		$actorUserId = is_string($parameters['actorUserId'] ?? null)
+			? $parameters['actorUserId']
+			: '';
+		$actor = $actorUserId !== '' ? $this->userManager->get($actorUserId) : null;
+
+		if ($actor instanceof IUser) {
+			$notification
+				->setParsedSubject($l->t(
+					'%1$s uploaded %2$d files to %3$s',
+					[$actor->getDisplayName(), $fileCount, $folder->getName()],
+				))
+				->setRichSubject($l->t(
+					'{user} uploaded %1$d files to {folder}',
+					[$fileCount],
+				), [
+					'user' => [
+						'type' => 'user',
+						'id' => $actor->getUID(),
+						'name' => $actor->getDisplayName(),
+					],
+					'folder' => $folderParameter,
+				]);
+		} else {
+			$notification
+				->setParsedSubject($l->t(
+					'%1$d new files were uploaded to %2$s',
+					[$fileCount, $folder->getName()],
+				))
+				->setRichSubject($l->t(
+					'%1$d new files were uploaded to {folder}',
+					[$fileCount],
+				), [
+					'folder' => $folderParameter,
+				]);
+		}
+
+		return $notification
+			->setLink($link)
+			->setIcon($this->iconUrl());
 	}
 
 	/**
@@ -132,5 +220,37 @@ class Notifier implements INotifier {
 		}
 
 		throw new AlreadyProcessedException();
+	}
+
+	/**
+	 * @return array{Folder, string}
+	 */
+	private function resolveAccessibleFolder(string $userId, int $folderId): array {
+		try {
+			$userFolder = $this->rootFolder->getUserFolder($userId);
+
+			foreach ($userFolder->getById($folderId) as $node) {
+				if (!$node instanceof Folder || !$node->isReadable()) {
+					continue;
+				}
+
+				$relativePath = $userFolder->getRelativePath($node->getPath());
+				if ($relativePath === null) {
+					continue;
+				}
+
+				return [$node, '/' . ltrim($relativePath, '/')];
+			}
+		} catch (\Throwable) {
+			throw new AlreadyProcessedException();
+		}
+
+		throw new AlreadyProcessedException();
+	}
+
+	private function iconUrl(): string {
+		return $this->urlGenerator->getAbsoluteURL(
+			$this->urlGenerator->imagePath(Application::APP_ID, 'app.svg'),
+		);
 	}
 }

@@ -2,21 +2,22 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 bis M5 einschließlich Share-Mount-Fix auf Nextcloud 33 live getestet; kanalbezogene Zustellung per Push und E-Mail in `0.4.0-alpha.3` implementiert
+> Projektstatus: M0 bis M5 einschließlich Share-Mount-Fix auf Nextcloud 33 live getestet; Push/E-Mail und ein zweiminütiges Sammelfenster in `0.4.0-alpha.4` implementiert
 
 ## Zielbild
 
 - Ordner direkt in der Dateien-App abonnieren und wieder abbestellen
 - Push und E-Mail pro Ordnerabonnement getrennt konfigurierbar
+- mehrere Dateien desselben Uploaders im selben Zielordner zu einer Meldung bündeln
 - Push über Nextcloud-Glocke und vorhandene mobile Push-Kanäle
 - E-Mail über den zentral konfigurierten Nextcloud-Mailer
 - Unterstützung eigener und geteilter Ordner
 - rekursive Überwachung optional pro Abonnement
 - eigene Uploads standardmäßig ausblenden
 - stabile Abonnements auch nach Umbenennen oder Verschieben eines Ordners
-- kein Polling, kein Ordner-Scan und kein dauerhaft laufender Prozess
+- kein Ordner-Scan und kein dauerhaft laufender Prozess
 
-Die App reagiert auf Nextclouds `NodeCreatedEvent`. Erst wenn Nextcloud tatsächlich eine Datei anlegt, wird der Listener ausgeführt. Die Zuordnung zu Abonnements erfolgt zuerst über interne Datei-/Speicher-IDs und indexierte Datenbankabfragen. Bei Freigabe-Mounts wird die Datei zusätzlich nur für die aktuell berechtigten Empfänger in deren sichtbarem Dateibaum aufgelöst, damit auch abonnierte virtuelle Sammelordner korrekt funktionieren.
+Die App reagiert auf Nextclouds `NodeCreatedEvent`. Erst wenn Nextcloud tatsächlich eine Datei anlegt, wird der Listener ausgeführt. Die Zuordnung zu Abonnements erfolgt zuerst über interne Datei-/Speicher-IDs und indexierte Datenbankabfragen. Bei Freigabe-Mounts wird die Datei zusätzlich nur für die aktuell berechtigten Empfänger in deren sichtbarem Dateibaum aufgelöst, damit auch abonnierte virtuelle Sammelordner korrekt funktionieren. Passende Ereignisse werden pro Empfänger, Uploader und Zielordner für zwei Minuten in einer kleinen Datenbankzeile gesammelt. Anschließend versendet ein einmaliger Nextcloud-Hintergrundjob genau eine Meldung; Dateien und Ordnerinhalte werden dabei nicht gescannt. Der Job wird nach zwei Minuten freigegeben und läuft beim nächsten Aufruf des konfigurierten Nextcloud-Hintergrundjob-Systems; bei einem fünfminütigen Cron-Intervall kann die Zustellung deshalb entsprechend später eintreffen.
 
 ## Planung
 
@@ -54,7 +55,8 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 - [x] M4: native Benachrichtigungen; Glockenmeldung auf Nextcloud 33 live getestet
 - [x] M5: persönliche Einstellungsseite; Ordnerauswahl, Optionen und Löschen live getestet
 - [x] M5.1: abonnierte virtuelle Share-Sammelordner; Livetest auf Nextcloud 33 bestanden
-- [ ] M5.2: Push und E-Mail pro Abonnement; Implementierung bereit für den Livetest
+- [x] M5.2: Push und E-Mail pro Abonnement; Livetest auf Nextcloud 33 bestanden
+- [ ] M5.3: Sammelmeldungen für Mehrfach-Uploads; Implementierung bereit für den Livetest
 
 ## Bedienung
 

@@ -4,7 +4,7 @@
 |---|---|
 | Dokumentstatus | Entwurf zur Projektfreigabe |
 | Version | 0.1 |
-| Stand | 06.08.2026 |
+| Stand | 07.08.2026 |
 | Auftraggeber / Product Owner | AlexPuchner |
 | Projektart | Open-Source-App für Nextcloud |
 | Repository | `AlexPuchner/nextcloud-folder-upload-notifications` |
@@ -19,7 +19,7 @@ Deshalb wird eine neue App entwickelt, die moderne Nextcloud-OCP-Schnittstellen 
 
 ## 2. Projektziel
 
-Benutzer sollen einen Ordner in Nextcloud abonnieren können. Wird dort eine neue Datei angelegt, erhalten alle berechtigten Abonnenten eine native Nextcloud-Benachrichtigung mit Dateiname, Ordner, optionalem Urheber und einem direkten Link zur Datei.
+Benutzer sollen einen Ordner in Nextcloud abonnieren können. Wird dort eine neue Datei angelegt, erhalten alle berechtigten Abonnenten eine native Nextcloud-Benachrichtigung mit Dateiname, Ordner, optionalem Urheber und einem direkten Link zur Datei. Mehrere Dateien desselben Uploaders im selben Zielordner werden innerhalb von zwei Minuten zu einer Sammelmeldung zusammengefasst.
 
 Die Verarbeitung muss vollständig ereignisgesteuert erfolgen. Ohne Dateiänderung verursacht die App keine wiederkehrende Arbeit. Es gibt insbesondere keine Ordner-Scans, keine Polling-Schleife und keinen dauerhaft laufenden Zusatzprozess.
 
@@ -57,12 +57,13 @@ Die App soll sich wie eine native Nextcloud-Funktion anfühlen. Die Bedienung er
 13. Eigene und mit dem Benutzer geteilte Ordner werden unterstützt.
 14. Vor dem Benachrichtigen wird geprüft, ob der Empfänger noch Zugriff auf den abonnierten Ordner besitzt.
 15. Benutzeroberfläche und Benachrichtigungstexte stehen mindestens auf Deutsch und Englisch zur Verfügung.
+16. Push und E-Mail sind pro Abonnement getrennt wählbar.
+17. Massen-Uploads erzeugen pro Empfänger, Uploader und Zielordner höchstens eine Meldung je zweiminütigem Sammelfenster.
 
 ### 5.2 Erweiterungen nach dem MVP
 
 - optionales Melden von Dateien, die in den Ordner verschoben werden
 - optionales Melden von Dateien, die in den Ordner kopiert werden
-- Bündelung vieler Uploads zu einer Sammelbenachrichtigung
 - optionale Filter nach Dateityp, Dateiendung, Größe oder Uploader
 - administratorweite Standardwerte und Funktionsfreigaben
 - Export und Import persönlicher Abonnements
@@ -99,7 +100,7 @@ Prioritäten: **Muss** = MVP, **Soll** = Version 1.0, **Kann** = später.
 | FA-013 | Muss | Mehrsprachigkeit | Deutsche und englische Texte sind vollständig vorhanden. |
 | FA-014 | Soll | Verschieben melden | Eine in den Zielordner verschobene Datei kann als neues Element behandelt werden. |
 | FA-015 | Soll | Kopieren melden | Eine in den Zielordner kopierte Datei kann als neues Element behandelt werden. |
-| FA-016 | Soll | Meldungen bündeln | Ein Massen-Upload erzeugt auf Wunsch eine zusammengefasste Meldung. |
+| FA-016 | Muss | Meldungen bündeln | Ein Massen-Upload erzeugt pro Empfänger, Uploader und Zielordner innerhalb von zwei Minuten eine zusammengefasste Meldung. |
 | FA-017 | Kann | Filter | Ein Abonnement lässt sich nach Metadaten einschränken. |
 
 ## 7. Nichtfunktionale Anforderungen
@@ -192,7 +193,9 @@ flowchart TD
     E --> F{"Treffer vorhanden?"}
     F -- Nein --> Z
     F -- Ja --> G["Zugriff und Eigen-Upload prüfen"]
-    G --> H["Nextcloud-Benachrichtigung senden"]
+    G --> H["Batch-Zähler aktualisieren"]
+    H --> I["Einmaligen Job nach 2 Minuten ausführen"]
+    I --> J["Push und/oder E-Mail senden"]
 ```
 
 ### 8.4 Matching ohne Ordner-Scan
@@ -233,6 +236,8 @@ Vorgesehene Constraints und Indizes:
 - Verwaltungsindex: `user_id`
 
 Vor der Migration wird in einem technischen Spike verifiziert, ob die aktuelle Zielversion eine global eindeutige `file_id` garantiert oder ob `storage_id + file_id` zwingend als zusammengesetzte Identität benötigt wird.
+
+Kurzlebige Sammelzustände liegen zusätzlich in `*PREFIX*folder_upload_batches`. Eine eindeutige Gruppenkennung fasst Empfänger, Uploader und tatsächlichen Zielordner zusammen. Gespeichert werden nur IDs, Kanalflags, Zähler, Revision und Zeitstempel. Der zugehörige `QueuedJob` wird über `IJobList::scheduleAfter()` einmalig für das Ende des Sammelfensters eingeplant; es gibt keinen periodischen Scan.
 
 ### 8.6 API-Entwurf
 
