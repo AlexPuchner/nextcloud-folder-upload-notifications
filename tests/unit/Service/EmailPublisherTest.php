@@ -19,8 +19,8 @@ use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\L10N\IFactory;
-use OCP\Mail\IMessage;
 use OCP\Mail\IMailer;
+use OCP\Mail\IMessage;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -76,8 +76,8 @@ final class EmailPublisherTest extends TestCase {
 			->willReturnSelf();
 		$message->expects(self::once())
 			->method('setPlainBody')
-			->with(self::callback(static fn (string $body): bool =>
-				str_contains($body, 'Path: /Shared/report.pdf')
+			->with(self::callback(static fn (string $body): bool
+				=> str_contains($body, 'Path: /Shared/report.pdf')
 				&& str_contains($body, 'Open file: https://cloud.example/files/99')
 			))
 			->willReturnSelf();
@@ -157,8 +157,8 @@ final class EmailPublisherTest extends TestCase {
 			->willReturnSelf();
 		$message->expects(self::once())
 			->method('setPlainBody')
-			->with(self::callback(static fn (string $body): bool =>
-				str_contains($body, 'Number of files: 50')
+			->with(self::callback(static fn (string $body): bool
+				=> str_contains($body, 'Number of files: 50')
 					&& str_contains($body, 'Path: /Shared/Photos')
 					&& str_contains($body, 'Open folder: https://cloud.example/files/42')
 			))
