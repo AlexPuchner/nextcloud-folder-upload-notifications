@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: Planung / Architekturphase
+> Projektstatus: M0 abgeschlossen, M1 Projektgerüst in Arbeit
 
 ## Zielbild
 
@@ -30,7 +30,9 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 | Backend | PHP, Nextcloud App Framework und OCP-APIs |
 | Frontend | TypeScript/Vue mit offiziellen Nextcloud-Komponenten |
 | Benachrichtigungen | Nextcloud Notifications API |
-| Zielversionen | Nextcloud 32 bis 34; endgültige Matrix nach Prüfung der Zielinstanz |
+| App-Kompatibilität | Nextcloud 31 bis 34 |
+| öffentlich unterstützte Versionen | Nextcloud 32 bis 34 |
+| Referenzinstanz | zuletzt erfasst: Nextcloud 31.0.2.1; Aktualisierung vor dem Betatest erforderlich |
 | vorgesehene Lizenz | AGPL-3.0-or-later |
 
 ## Nicht Bestandteil der Architektur
@@ -39,6 +41,16 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 - direkte Überwachung des Nextcloud-Datenverzeichnisses mit `inotify`
 - Lesen oder Analysieren von Dateiinhalten
 - externe Cloud-, Analyse- oder Telemetriedienste
+
+## Entwicklungsstand
+
+- [x] Projektauftrag und Anforderungen
+- [x] M0: API-Spike für `NodeCreatedEvent` und stabile Ordneridentität
+- [ ] M1: installierbares App-Grundgerüst und grüne CI
+- [ ] M2: Abonnement-Backend und CRUD-API
+- [ ] M3: Event- und Matching-Kern
+
+Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md).
 
 ## Quellenbasis
 
