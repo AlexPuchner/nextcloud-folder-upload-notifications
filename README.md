@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 bis M5 einschließlich Share-Mount-Fix auf Nextcloud 33 live getestet; Push/E-Mail und ein zweiminütiges Sammelfenster in `0.4.0-alpha.4` implementiert
+> Projektstatus: öffentliche Alpha-Vorbereitung für `0.4.0-alpha.4`; Kernfunktionen auf Nextcloud 33 live getestet
 
 ## Zielbild
 
@@ -61,6 +61,24 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 ## Bedienung
 
 Nach der Installation findet jeder Benutzer seine Ordnerabonnements unter **Profilbild → Persönliche Einstellungen → Ordner-Upload-Benachrichtigungen**. Dort lassen sich Ordner über den nativen Nextcloud-Dateidialog hinzufügen, Push und E-Mail je Abo auswählen, Unterordner und eigene Uploads konfigurieren sowie Abos wieder entfernen. Für E-Mail-Benachrichtigungen müssen der zentrale Mailversand eingerichtet und im Benutzerprofil eine E-Mail-Adresse hinterlegt sein.
+
+## Installation
+
+### Nextcloud App Store
+
+Die Alpha-Version wird nur auf Nextcloud-Instanzen angeboten, deren Update-Kanal Vorabversionen zulässt. Nach der Veröffentlichung kann sie in der App-Verwaltung gesucht und installiert werden. Unterstützt werden Nextcloud 32 bis 34 sowie PostgreSQL, MariaDB/MySQL und SQLite.
+
+### Manuelle Installation
+
+Das Release-Archiv muss als Ordner `folder_upload_notifications` unterhalb eines Nextcloud-App-Verzeichnisses entpackt werden. Anschließend lässt sich die App in der App-Verwaltung oder mit `occ app:enable folder_upload_notifications` aktivieren. Für zuverlässige Sammelbenachrichtigungen sollte Nextclouds Hintergrundjob-Modus auf Cron eingestellt sein.
+
+## Datenschutz und Sicherheit
+
+Die App verarbeitet ausschließlich Nextcloud-interne Benutzer-, Ordner- und Datei-IDs sowie die für eine Benachrichtigung notwendigen Anzeigenamen und Pfade. Dateiinhalte werden weder gelesen noch analysiert. Es gibt keine Telemetrie, Werbung oder externen Analyse-/Cloud-Dienste. Sicherheitsprobleme bitte nicht öffentlich melden; der verantwortungsvolle Meldeweg ist in [SECURITY.md](SECURITY.md) beschrieben.
+
+## Entwicklung und Releases
+
+Entwicklungssetup, Qualitätsprüfungen und der App-Store-Releaseprozess sind in [CONTRIBUTING.md](CONTRIBUTING.md) und [docs/RELEASING.md](docs/RELEASING.md) dokumentiert. Änderungen werden in [CHANGELOG.md](CHANGELOG.md) festgehalten.
 
 Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md). Die OCS-Endpunkte sind in [`docs/API.md`](docs/API.md) dokumentiert.
 

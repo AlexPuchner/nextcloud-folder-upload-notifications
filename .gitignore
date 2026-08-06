@@ -11,3 +11,6 @@
 /tests/.phpunit.cache/
 /coverage/
 *.log
+*.key
+*.csr
+/appinfo/signature.json
