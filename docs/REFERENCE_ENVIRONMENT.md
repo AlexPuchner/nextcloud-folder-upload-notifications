@@ -8,8 +8,8 @@ Stand: 06.08.2026
 |---|---|---|
 | Bereitstellung | selbst gehostet, Docker, Traefik | für die App transparent |
 | Nextcloud | 33.0.2 (interne Version 33.0.2.2) | Referenzversion; installiert und ohne Wartungsmodus |
-| PHP | noch zu erfassen | App-Mindestversion 8.1 |
-| Datenbank | noch zu erfassen | vor M2 für Migrationstests erforderlich |
+| PHP | 8.4.20 CLI, NTS | innerhalb des für Nextcloud 33 vorgesehenen Bereichs |
+| Datenbank | PostgreSQL (`pgsql`) | Referenzdatenbank für Migrationstests |
 | Primärspeicher | noch zu erfassen | vor dem M0-Livetest erforderlich |
 | Externe Speicher | noch zu erfassen | nicht blockierend für das MVP |
 | Bereitstellungsstatus | `maintenance: false`, `needsDbUpgrade: false` | bereit für den M1-Installationstest |
@@ -39,7 +39,7 @@ Der statische API-Spike ist abgeschlossen:
 
 Auf der Zielinstanz werden vor M2 einmalig erfasst beziehungsweise geprüft:
 
-- aktuelle Nextcloud-, PHP- und Datenbankversion
+- aktuelle Nextcloud-, PHP- und Datenbankversion (abgeschlossen)
 - Primärspeicher und relevante externe Speicher
 - genau ein `NodeCreatedEvent` pro fertiger Datei bei Browser-, WebDAV- und Desktop-Upload
 - Verhalten bei Chunked Uploads
