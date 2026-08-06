@@ -30,9 +30,9 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 | Backend | PHP, Nextcloud App Framework und OCP-APIs |
 | Frontend | TypeScript/Vue mit offiziellen Nextcloud-Komponenten |
 | Benachrichtigungen | Nextcloud Notifications API |
-| App-Kompatibilität | Nextcloud 31 bis 34 |
+| App-Kompatibilität | Nextcloud 32 bis 34 |
 | öffentlich unterstützte Versionen | Nextcloud 32 bis 34 |
-| Referenzinstanz | zuletzt erfasst: Nextcloud 31.0.2.1; Aktualisierung vor dem Betatest erforderlich |
+| Referenzinstanz | Nextcloud 33.0.2 (interne Version 33.0.2.2), Docker-Apache-Image |
 | vorgesehene Lizenz | AGPL-3.0-or-later |
 
 ## Nicht Bestandteil der Architektur
