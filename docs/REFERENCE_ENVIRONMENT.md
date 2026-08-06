@@ -7,17 +7,18 @@ Stand: 06.08.2026
 | Bereich | Stand | Bewertung |
 |---|---|---|
 | Bereitstellung | selbst gehostet, Docker, Traefik | für die App transparent |
-| Nextcloud | zuletzt erfasst: 31.0.2.1 | technisch kompatibel, aber End of Life |
+| Nextcloud | 33.0.2 (interne Version 33.0.2.2) | Referenzversion; installiert und ohne Wartungsmodus |
 | PHP | noch zu erfassen | App-Mindestversion 8.1 |
 | Datenbank | noch zu erfassen | vor M2 für Migrationstests erforderlich |
 | Primärspeicher | noch zu erfassen | vor dem M0-Livetest erforderlich |
 | Externe Speicher | noch zu erfassen | nicht blockierend für das MVP |
+| Bereitstellungsstatus | `maintenance: false`, `needsDbUpgrade: false` | bereit für den M1-Installationstest |
 
-Nextcloud 31 hat im Februar 2026 das Wartungsende erreicht. Die App bleibt für den Entwicklungs- und Übergangszeitraum ab Version 31 installierbar. Der Betatest und eine produktive Freigabe erfolgen erst auf einer noch unterstützten Nextcloud-Version.
+Die Referenzinstanz läuft im offiziellen Docker-Image `nextcloud:33.0.2-apache`; der Containername lautet `nextcloud`.
 
 ## Kompatibilitätsstrategie
 
-- `info.xml`: Nextcloud 31 bis 34
+- `info.xml`: Nextcloud 32 bis 34
 - öffentliche Supportzusage für die erste stabile Version: Nextcloud 32 bis 34
 - niedrigste PHP-Syntax und Composer-Plattform: PHP 8.1
 - statische Analyse gegen die älteste unterstützte OCP-API
