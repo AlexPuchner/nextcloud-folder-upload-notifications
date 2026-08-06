@@ -15,6 +15,6 @@
 	<repository type="git">https://github.com/AlexPuchner/nextcloud-folder-upload-notifications.git</repository>
 	<dependencies>
 		<php min-version="8.1"/>
-		<nextcloud min-version="31" max-version="34"/>
+		<nextcloud min-version="32" max-version="34"/>
 	</dependencies>
 </info>
