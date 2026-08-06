@@ -1,7 +1,8 @@
-# Subscription API
+# Experimental subscription API
 
-The backend exposes an authenticated OCS API. All routes require a logged-in
-Nextcloud user. CSRF protection remains enabled for browser requests.
+> This developer API is experimental. Routes and response fields may change during the alpha phase without backward-compatibility guarantees. Normal use of the app does not require direct API access.
+
+The app exposes an authenticated OCS API. Every route is scoped to the logged-in Nextcloud user, and CSRF protection remains enabled for browser requests.
 
 Base path:
 
@@ -9,8 +10,7 @@ Base path:
 /ocs/v2.php/apps/folder_upload_notifications/api/v1
 ```
 
-Set `OCS-APIRequest: true` and request JSON with either `Accept:
-application/json` or `?format=json`.
+Send `OCS-APIRequest: true` and request JSON with `Accept: application/json` or `?format=json`.
 
 ## List subscriptions
 
@@ -18,9 +18,9 @@ application/json` or `?format=json`.
 GET /subscriptions
 ```
 
-Only subscriptions owned by the current user are returned.
+Returns only subscriptions owned by the current user.
 
-## Subscribe to a folder
+## Create or replace a subscription
 
 ```http
 POST /subscriptions
@@ -35,9 +35,7 @@ Content-Type: application/json
 }
 ```
 
-`folderFileId` must identify a folder that is currently visible inside the
-authenticated user's Nextcloud file tree. Repeating the request for the same
-folder updates the options instead of creating a duplicate subscription.
+`folderFileId` must identify a folder visible in the authenticated user's Nextcloud file tree. Repeating the request for the same folder updates its options instead of creating a duplicate.
 
 ## Update options
 
@@ -59,8 +57,7 @@ Content-Type: application/json
 DELETE /subscriptions/{id}
 ```
 
-Unknown IDs and IDs owned by another user both return `404`. This avoids
-revealing whether another user's subscription exists.
+Unknown IDs and subscriptions owned by another user both return `404`.
 
 ## Response object
 
@@ -78,9 +75,4 @@ revealing whether another user's subscription exists.
 }
 ```
 
-The internal storage ID and owner ID are intentionally not returned.
-
-`notifyPush` creates a native Nextcloud notification. It is shown in the web
-notification menu and is forwarded to registered mobile clients by Nextcloud's
-notification app. `notifyEmail` sends an immediate message through Nextcloud's
-configured mailer to the email address in the subscription owner's profile.
+Internal storage and owner IDs are intentionally omitted. `notifyPush` creates a native Nextcloud notification for the web interface and registered mobile clients. `notifyEmail` sends mail through Nextcloud's configured mailer. Both channels are dispatched after the two-minute batching window.
