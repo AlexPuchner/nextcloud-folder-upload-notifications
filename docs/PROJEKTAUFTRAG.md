@@ -141,9 +141,9 @@ Prioritäten: **Muss** = MVP, **Soll** = Version 1.0, **Kann** = später.
 
 ### 7.4 Kompatibilität
 
-Die aktuelle offizielle Dokumentation führt Nextcloud 34 als neueste und 32/33 als weitere unterstützte Versionen. Der öffentlich unterstützte Startkorridor ist deshalb Nextcloud 32 bis 34. Die zuletzt bekannte Zielinstanz verwendet Nextcloud 31.0.2.1. Damit die App bereits während der Entwicklung dort installierbar bleibt, lautet die technische App-Kompatibilität zunächst 31 bis 34. Nextcloud 31 ist jedoch seit Februar 2026 End of Life und wird nicht als sichere Produktionsplattform freigegeben. Vor dem Betatest muss die Zielinstanz mindestens auf eine noch unterstützte Hauptversion aktualisiert werden.
+Die aktuelle offizielle Dokumentation führt Nextcloud 34 als neueste und 32/33 als weitere unterstützte Versionen. Der unterstützte Startkorridor ist deshalb Nextcloud 32 bis 34. Die Referenzinstanz verwendet Nextcloud 33.0.2 im offiziellen Apache-Docker-Image und liegt damit innerhalb des vorgesehenen Korridors.
 
-Als niedrigste PHP-Laufzeit wird PHP 8.1 verwendet. Nextcloud 31/32 unterstützen PHP 8.1 bis 8.4, Nextcloud 33/34 PHP 8.2 bis 8.5. Die CI prüft den gemeinsamen, für den jeweiligen Server zulässigen Bereich. Datenbanktyp und Storage-Backend der Zielinstanz werden vor der ersten Installation mit `occ` erfasst.
+Als niedrigste PHP-Laufzeit wird für die Kompatibilität mit Nextcloud 32 zunächst PHP 8.1 verwendet; Nextcloud 33/34 benötigen mindestens PHP 8.2. Die CI prüft den für die jeweilige Serverversion zulässigen Bereich. Datenbanktyp und Storage-Backend der Zielinstanz werden vor der ersten Installation mit `occ` erfasst.
 
 Unterstützte Speicherarten im MVP:
 
@@ -430,7 +430,7 @@ Das MVP gilt als fertig, wenn:
 
 | Entscheidung | vorgeschlagener Standard | Status |
 |---|---|---|
-| genaue Nextcloud-Zielversion | zuletzt bekannt 31.0.2.1; vor Beta Upgrade auf unterstützte Version | entschieden; Ist-Stand vor Installation erneut prüfen |
+| genaue Nextcloud-Zielversion | Nextcloud 33.0.2 (interne Version 33.0.2.2), Docker Apache | entschieden und mit `occ status` bestätigt |
 | Repository-Sichtbarkeit | öffentlich | entschieden |
 | Lizenz | AGPL-3.0-or-later | entschieden |
 | rekursiv als Standard | ja | entschieden |
