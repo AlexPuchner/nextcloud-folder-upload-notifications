@@ -360,7 +360,8 @@ Gesamtrahmen für ein sauberes MVP: ungefähr **13–23 Personentage**, abhängi
 |---|---|
 | `0.1.0` | installierbarer technischer Prototyp mit Eventnachweis |
 | `0.2.0` | Backend und API vollständig |
-| `0.3.0` | native Benachrichtigungen und einfache UI |
+| `0.3.0` | native Benachrichtigungen |
+| `0.4.0` | persönliche Einstellungsoberfläche und native Ordnerauswahl |
 | `0.9.0` | Beta auf realer Instanz, Feature Freeze |
 | `1.0.0` | produktionsreifes MVP |
 | `1.1.0+` | Verschieben/Kopieren, Bündelung und Filter |

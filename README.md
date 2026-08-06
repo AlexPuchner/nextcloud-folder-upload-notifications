@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 bis M2 abgeschlossen; M3/M4 implementiert, Livetest ausstehend
+> Projektstatus: M0 bis M4 abgeschlossen und auf Nextcloud 33 live getestet; M5-Einstellungsoberfläche implementiert, Livetest ausstehend
 
 ## Zielbild
 
@@ -48,8 +48,13 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 - [x] M0: API-Spike für `NodeCreatedEvent` und stabile Ordneridentität
 - [x] M1: installierbares App-Grundgerüst; Livetest auf Nextcloud 33 bestanden
 - [x] M2: Abonnement-Backend und CRUD-API; Livetest auf Nextcloud 33 bestanden
-- [x] M3: Event- und Matching-Kern
-- [ ] M4: native Benachrichtigungen implementiert; Livetest auf Nextcloud 33 ausstehend
+- [x] M3: Event- und Matching-Kern; Fremd- und Eigen-Upload-Filter live getestet
+- [x] M4: native Benachrichtigungen; Glockenmeldung auf Nextcloud 33 live getestet
+- [ ] M5: persönliche Einstellungsseite implementiert; Livetest auf Nextcloud 33 ausstehend
+
+## Bedienung
+
+Nach der Installation findet jeder Benutzer seine Ordnerabonnements unter **Profilbild → Persönliche Einstellungen → Ordner-Upload-Benachrichtigungen**. Dort lassen sich Ordner über den nativen Nextcloud-Dateidialog hinzufügen, Unterordner und eigene Uploads je Abo konfigurieren sowie Abos wieder entfernen.
 
 Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md). Die OCS-Endpunkte sind in [`docs/API.md`](docs/API.md) dokumentiert.
 

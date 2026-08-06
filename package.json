@@ -1,0 +1,37 @@
+{
+	"name": "folder-upload-notifications",
+	"version": "0.4.0-alpha.1",
+	"private": true,
+	"license": "AGPL-3.0-or-later",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"dev": "vite --mode development build",
+		"typecheck": "vue-tsc --noEmit",
+		"watch": "vite --mode development build --watch"
+	},
+	"browserslist": [
+		"extends @nextcloud/browserslist-config"
+	],
+	"dependencies": {
+		"@nextcloud/axios": "^2.6.0",
+		"@nextcloud/dialogs": "^7.4.1",
+		"@nextcloud/l10n": "^3.4.1",
+		"@nextcloud/router": "^3.1.0",
+		"@nextcloud/vue": "^9.9.0",
+		"vue": "^3.5.35",
+		"vue-material-design-icons": "^5.3.1"
+	},
+	"devDependencies": {
+		"@nextcloud/browserslist-config": "^3.1.2",
+		"@nextcloud/vite-config": "^2.5.4",
+		"@vue/tsconfig": "^0.9.1",
+		"typescript": "^5.9.3",
+		"vite": "^7.3.2",
+		"vue-tsc": "^3.2.2"
+	},
+	"engines": {
+		"node": "^24.0.0",
+		"npm": "^11.3.0"
+	}
+}
