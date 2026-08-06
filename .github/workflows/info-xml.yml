@@ -2,7 +2,6 @@ name: App metadata
 
 on:
   push:
-    branches: [main]
   pull_request:
 
 permissions:
