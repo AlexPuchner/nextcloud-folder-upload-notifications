@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer einzelne Ordner abonnieren und bei neuen Dateien über das vorhandene Nextcloud-Benachrichtigungssystem informiert werden können.
 
-> Projektstatus: M0 abgeschlossen, M1 Projektgerüst in Arbeit
+> Projektstatus: M0 und M1 abgeschlossen, M2 Abonnement-Backend in Arbeit
 
 ## Zielbild
 
@@ -46,11 +46,11 @@ Der vollständige Projektauftrag mit Anforderungen, Architektur, Datenmodell, Me
 
 - [x] Projektauftrag und Anforderungen
 - [x] M0: API-Spike für `NodeCreatedEvent` und stabile Ordneridentität
-- [ ] M1: installierbares App-Grundgerüst und grüne CI
+- [x] M1: installierbares App-Grundgerüst; Livetest auf Nextcloud 33 bestanden
 - [ ] M2: Abonnement-Backend und CRUD-API
 - [ ] M3: Event- und Matching-Kern
 
-Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md).
+Die Architekturentscheidungen und die erfasste Referenzumgebung liegen unter [`docs/adr/`](docs/adr/) und in [`docs/REFERENCE_ENVIRONMENT.md`](docs/REFERENCE_ENVIRONMENT.md). Die OCS-Endpunkte sind in [`docs/API.md`](docs/API.md) dokumentiert.
 
 ## Quellenbasis
 

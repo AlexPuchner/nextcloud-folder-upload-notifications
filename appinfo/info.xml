@@ -5,7 +5,7 @@
 	<name>Folder Upload Notifications</name>
 	<summary>Subscribe to folders and get notified about new files</summary>
 	<description><![CDATA[Subscribe to individual folders and receive native Nextcloud notifications when new files are uploaded. The app is event-driven and does not scan folders in the background.]]></description>
-	<version>0.1.0-alpha.1</version>
+	<version>0.2.0-alpha.1</version>
 	<licence>AGPL-3.0-or-later</licence>
 	<author homepage="https://github.com/AlexPuchner">AlexPuchner</author>
 	<namespace>FolderUploadNotifications</namespace>
@@ -15,6 +15,9 @@
 	<repository type="git">https://github.com/AlexPuchner/nextcloud-folder-upload-notifications.git</repository>
 	<dependencies>
 		<php min-version="8.1"/>
+		<database>pgsql</database>
+		<database>sqlite</database>
+		<database>mysql</database>
 		<nextcloud min-version="32" max-version="34"/>
 	</dependencies>
 </info>

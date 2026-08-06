@@ -217,7 +217,7 @@ Tabelle: `*PREFIX*folder_upload_subs`
 | `storage_id` | stabile Kennung des zugrunde liegenden Speichers |
 | `folder_file_id` | interne ID des abonnierten Ordners |
 | `recursive` | Unterordner einbeziehen |
-| `notify_self` | eigene Uploads melden |
+| `notify_own_uploads` | eigene Uploads melden |
 | `notify_move` | spätere Option für Verschiebeereignisse |
 | `notify_copy` | spätere Option für Kopierereignisse |
 | `display_path` | nicht maßgeblicher Cache für die Benutzeroberfläche |
@@ -236,10 +236,10 @@ Vor der Migration wird in einem technischen Spike verifiziert, ob die aktuelle Z
 
 | Methode | Route | Zweck |
 |---|---|---|
-| `GET` | `/apps/folder_upload_notifications/api/v1/subscriptions` | eigene Abonnements auflisten |
-| `POST` | `/apps/folder_upload_notifications/api/v1/subscriptions` | Ordner abonnieren |
-| `PATCH` | `/apps/folder_upload_notifications/api/v1/subscriptions/{id}` | Optionen ändern |
-| `DELETE` | `/apps/folder_upload_notifications/api/v1/subscriptions/{id}` | Abonnement entfernen |
+| `GET` | `/ocs/v2.php/apps/folder_upload_notifications/api/v1/subscriptions` | eigene Abonnements auflisten |
+| `POST` | `/ocs/v2.php/apps/folder_upload_notifications/api/v1/subscriptions` | Ordner abonnieren |
+| `PATCH` | `/ocs/v2.php/apps/folder_upload_notifications/api/v1/subscriptions/{id}` | Optionen ändern |
+| `DELETE` | `/ocs/v2.php/apps/folder_upload_notifications/api/v1/subscriptions/{id}` | Abonnement entfernen |
 
 Die API akzeptiert beim Anlegen eine Node-/File-ID und keine frei interpretierbaren Serverpfade. Alle Antworten verwenden ein einheitliches JSON-Schema und passende HTTP-Statuscodes.
 
