@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>folder_upload_notifications</id>
+	<name>Folder Upload Notifications</name>
+	<name lang="de">Ordner-Upload-Benachrichtigungen</name>
+	<summary>Subscribe to folders and get notified about new files</summary>
+	<summary lang="de">Ordner überwachen und über neue Dateien benachrichtigt werden</summary>
+	<description><![CDATA[Subscribe to individual folders and receive batched notifications when new files are uploaded.
+
+- Choose push notifications, email, or both per subscribed folder
+- Include subfolders optionally
+- Include or ignore your own uploads
+- Supports personal folders and folders shared between users
+- Batches multiple uploads for two minutes to avoid notification spam
+- Event-driven: no folder scans, file-content access, telemetry, or external services
+
+Notifications are delivered by the next configured Nextcloud background-job run after the two-minute batching window.]]></description>
+	<description lang="de"><![CDATA[Überwache einzelne Ordner und erhalte gebündelte Benachrichtigungen, wenn neue Dateien hochgeladen werden.
+
+- Push, E-Mail oder beide Zustellwege pro überwachtem Ordner
+- Unterordner optional einbeziehen
+- Eigene Uploads einbeziehen oder ausblenden
+- Unterstützung für persönliche und zwischen Benutzern geteilte Ordner
+- Zwei Minuten Sammelfenster gegen Benachrichtigungs-Spam
+- Ereignisgesteuert: keine Ordner-Scans, kein Zugriff auf Dateiinhalte, keine Telemetrie und keine externen Dienste
+
+Die Zustellung erfolgt beim nächsten konfigurierten Nextcloud-Hintergrundjob nach Ablauf des zweiminütigen Sammelfensters.]]></description>
+	<version>0.4.0-alpha.5</version>
+	<licence>AGPL-3.0-or-later</licence>
+	<author homepage="https://github.com/AlexPuchner">AlexPuchner</author>
+	<namespace>FolderUploadNotifications</namespace>
+	<documentation>
+		<user>https://github.com/AlexPuchner/nextcloud-folder-upload-notifications#bedienung</user>
+		<admin>https://github.com/AlexPuchner/nextcloud-folder-upload-notifications#installation</admin>
+		<developer>https://github.com/AlexPuchner/nextcloud-folder-upload-notifications/blob/main/docs/API.md</developer>
+	</documentation>
+	<category>files</category>
+	<website>https://github.com/AlexPuchner/nextcloud-folder-upload-notifications</website>
+	<bugs>https://github.com/AlexPuchner/nextcloud-folder-upload-notifications/issues</bugs>
+	<repository type="git">https://github.com/AlexPuchner/nextcloud-folder-upload-notifications.git</repository>
+	<dependencies>
+		<php min-version="8.1"/>
+		<database>pgsql</database>
+		<database>sqlite</database>
+		<database>mysql</database>
+		<nextcloud min-version="32" max-version="34"/>
+	</dependencies>
+	<settings>
+		<personal>OCA\FolderUploadNotifications\Settings\Personal</personal>
+		<personal-section>OCA\FolderUploadNotifications\Sections\Personal</personal-section>
+	</settings>
+</info>

@@ -1,0 +1,16 @@
+/build/
+/dist/
+/node_modules/
+/vendor/
+/vendor-bin/*/vendor/
+/vendor-bin/*/composer.lock
+/.idea/
+/.vscode/
+/.phpunit.result.cache
+/.php-cs-fixer.cache
+/tests/.phpunit.cache/
+/coverage/
+*.log
+*.key
+*.csr
+/appinfo/signature.json

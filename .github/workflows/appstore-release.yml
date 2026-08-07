@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: 2026 AlexPuchner
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Build and publish App Store release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: folder_upload_notifications
+
+jobs:
+  build-sign-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate release tag against app version
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_version="$(sed -n 's:.*<version>\(.*\)</version>.*:\1:p' appinfo/info.xml)"
+          test "${GITHUB_REF_NAME}" = "v${app_version}"
+          echo "APP_VERSION=${app_version}" >> "${GITHUB_ENV}"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
+
+      - name: Build App Store archive
+        run: make appstore
+
+      - name: Determine compatible Nextcloud server download
+        shell: bash
+        run: |
+          set -euo pipefail
+          nextcloud_min="$(sed -n 's:.*<nextcloud min-version="\([0-9][0-9]*\)".*:\1:p' appinfo/info.xml)"
+          download_url="$(curl --fail --silent --show-error "https://updates.nextcloud.com/updater_server/latest?channel=beta&version=${nextcloud_min}" | jq -r '.downloads.zip[0]')"
+          test -n "${download_url}"
+          test "${download_url}" != "null"
+          echo "NEXTCLOUD_DOWNLOAD_URL=${download_url}" >> "${GITHUB_ENV}"
+
+      - name: Download Nextcloud signing runtime
+        run: |
+          curl --fail --location --show-error "${NEXTCLOUD_DOWNLOAD_URL}" --output nextcloud.zip
+          unzip -q nextcloud.zip
+
+      - name: Add Nextcloud integrity signature
+        shell: bash
+        env:
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${APP_PRIVATE_KEY}"
+          printf '%s\n' "${APP_PRIVATE_KEY}" > "${RUNNER_TEMP}/${APP_NAME}.key"
+          curl --fail --location --show-error \
+            "https://raw.githubusercontent.com/nextcloud/app-certificate-requests/master/${APP_NAME}/${APP_NAME}.crt" \
+            --output "${RUNNER_TEMP}/${APP_NAME}.crt"
+          mkdir -p build/artifacts/signed
+          tar -xzf "build/artifacts/${APP_NAME}.tar.gz" -C build/artifacts/signed
+          php nextcloud/occ integrity:sign-app \
+            --privateKey="${RUNNER_TEMP}/${APP_NAME}.key" \
+            --certificate="${RUNNER_TEMP}/${APP_NAME}.crt" \
+            --path="build/artifacts/signed/${APP_NAME}"
+          tar -czf "build/artifacts/${APP_NAME}.tar.gz" \
+            -C build/artifacts/signed "${APP_NAME}"
+          release_asset="${APP_NAME}-${APP_VERSION}.tar.gz"
+          mv "build/artifacts/${APP_NAME}.tar.gz" "build/artifacts/${release_asset}"
+          (cd build/artifacts && sha256sum "${release_asset}" > "${APP_NAME}-${APP_VERSION}.sha256")
+
+      - name: Attach archive to GitHub release
+        id: attach-release
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/artifacts/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.tar.gz
+          asset_name: ${{ env.APP_NAME }}-${{ env.APP_VERSION }}.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Attach checksum to GitHub release
+        uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/artifacts/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.sha256
+          asset_name: ${{ env.APP_NAME }}-${{ env.APP_VERSION }}.sha256
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Publish release to Nextcloud App Store
+        uses: nextcloud-releases/nextcloud-appstore-push-action@a011fe619bcf6e77ddebc96f9908e1af4071b9c1 # v1.0.3
+        with:
+          app_name: ${{ env.APP_NAME }}
+          appstore_token: ${{ secrets.APPSTORE_TOKEN }}
+          download_url: ${{ steps.attach-release.outputs.browser_download_url }}
+          app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
