@@ -21,7 +21,6 @@ final class Version0003Date20260806233000 extends SimpleMigrationStep {
 		Closure $schemaClosure,
 		array $options,
 	): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		if (!$schema->hasTable('folder_upload_subs')) {

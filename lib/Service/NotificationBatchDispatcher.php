@@ -24,64 +24,37 @@ class NotificationBatchDispatcher {
 	) {
 	}
 
-	public function dispatch(NotificationBatch $batch): void {
-		if ($batch->getFileCount() <= 1) {
-			$this->dispatchSingleFile($batch);
+	public function dispatchPush(NotificationBatch $batch): void {
+		if ($batch->getFileCount() > 1) {
+			$this->notificationPublisher->publishBatch($batch);
 
 			return;
 		}
 
-		if ($batch->getNotifyPush()) {
-			try {
-				$this->notificationPublisher->publishBatch($batch);
-			} catch (\Throwable $exception) {
-				$this->logFailure('push', $batch, $exception);
-			}
-		}
-
-		if ($batch->getNotifyEmail()) {
-			try {
-				$this->emailPublisher->publishBatch($batch);
-			} catch (\Throwable $exception) {
-				$this->logFailure('email', $batch, $exception);
-			}
+		$file = $this->resolveAccessibleFile($batch);
+		if ($file instanceof File) {
+			$this->notificationPublisher->publish(
+				$file,
+				[$batch->getRecipientUserId()],
+				$this->actorUserId($batch),
+			);
 		}
 	}
 
-	private function dispatchSingleFile(NotificationBatch $batch): void {
-		$file = $this->resolveAccessibleFile($batch);
-		if (!$file instanceof File) {
-			$this->logger->warning('Folder upload notification skipped because the file is no longer accessible', [
-				'app' => Application::APP_ID,
-				'batchId' => $batch->getId(),
-				'userId' => $batch->getRecipientUserId(),
-			]);
+	public function dispatchEmail(NotificationBatch $batch): void {
+		if ($batch->getFileCount() > 1) {
+			$this->emailPublisher->publishBatch($batch);
 
 			return;
 		}
 
-		if ($batch->getNotifyPush()) {
-			try {
-				$this->notificationPublisher->publish(
-					$file,
-					[$batch->getRecipientUserId()],
-					$this->actorUserId($batch),
-				);
-			} catch (\Throwable $exception) {
-				$this->logFailure('push', $batch, $exception);
-			}
-		}
-
-		if ($batch->getNotifyEmail()) {
-			try {
-				$this->emailPublisher->publish(
-					$file,
-					[$batch->getRecipientUserId()],
-					$this->actorUserId($batch),
-				);
-			} catch (\Throwable $exception) {
-				$this->logFailure('email', $batch, $exception);
-			}
+		$file = $this->resolveAccessibleFile($batch);
+		if ($file instanceof File) {
+			$this->emailPublisher->publish(
+				$file,
+				[$batch->getRecipientUserId()],
+				$this->actorUserId($batch),
+			);
 		}
 	}
 
@@ -94,24 +67,16 @@ class NotificationBatchDispatcher {
 			}
 		}
 
+		$this->logger->warning('Folder upload notification skipped because the file is no longer accessible', [
+			'app' => Application::APP_ID,
+			'batchId' => $batch->getId(),
+			'userId' => $batch->getRecipientUserId(),
+		]);
+
 		return null;
 	}
 
 	private function actorUserId(NotificationBatch $batch): ?string {
 		return $batch->getActorUserId() !== '' ? $batch->getActorUserId() : null;
-	}
-
-	private function logFailure(
-		string $channel,
-		NotificationBatch $batch,
-		\Throwable $exception,
-	): void {
-		$this->logger->error('Failed to dispatch folder upload notification batch', [
-			'app' => Application::APP_ID,
-			'batchId' => $batch->getId(),
-			'userId' => $batch->getRecipientUserId(),
-			'channel' => $channel,
-			'exception' => $exception,
-		]);
 	}
 }

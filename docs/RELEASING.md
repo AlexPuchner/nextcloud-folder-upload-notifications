@@ -39,7 +39,7 @@ The expected local certificate layout is:
 ## Prepare a release
 
 1. Update `appinfo/info.xml` and `package.json` to the same semantic version.
-2. Update `CHANGELOG.md`. App Store pre-releases use the `Unreleased` section.
+2. Move the release notes from `Unreleased` into a dated section matching the new version.
 3. Run all backend and frontend quality checks.
 4. Build and inspect the unsigned production archive:
 
@@ -56,11 +56,11 @@ The archive must contain exactly one top-level folder named `folder_upload_notif
 ## Publish
 
 1. Merge the release commit into `main`.
-2. Create a tag matching the app version with a leading `v`, for example `v0.4.0-alpha.4`.
+2. Create a tag matching the app version with a leading `v`, for example `v0.4.0-alpha.5`.
 3. Create and publish a GitHub pre-release from that tag.
 4. The `appstore-release.yml` workflow rebuilds the archive, adds Nextcloud's integrity signature, attaches the archive to the GitHub release, and submits it to the App Store.
 
-Versions containing a prerelease suffix such as `-alpha.4` are handled as prereleases by the App Store. They are not offered to normal stable-channel installations.
+Versions containing a prerelease suffix such as `-alpha.5` are handled as prereleases by the App Store. They are not offered to normal stable-channel installations.
 
 ## Verify
 

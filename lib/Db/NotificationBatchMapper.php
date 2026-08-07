@@ -112,6 +112,14 @@ class NotificationBatchMapper extends QBMapper {
 		return $qb->executeStatement();
 	}
 
+	public function clearPushIfRevision(int $id, int $revision): int {
+		return $this->clearChannelIfRevision($id, $revision, 'notify_push');
+	}
+
+	public function clearEmailIfRevision(int $id, int $revision): int {
+		return $this->clearChannelIfRevision($id, $revision, 'notify_email');
+	}
+
 	private function findByGroupKey(string $groupKey): NotificationBatch {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
@@ -166,6 +174,25 @@ class NotificationBatchMapper extends QBMapper {
 				$qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL),
 			);
 		}
+
+		return $qb->executeStatement();
+	}
+
+	private function clearChannelIfRevision(int $id, int $revision, string $column): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set(
+				$column,
+				$qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL),
+			)
+			->where($qb->expr()->eq(
+				'id',
+				$qb->createNamedParameter($id, IQueryBuilder::PARAM_INT),
+			))
+			->andWhere($qb->expr()->eq(
+				'revision',
+				$qb->createNamedParameter($revision, IQueryBuilder::PARAM_INT),
+			));
 
 		return $qb->executeStatement();
 	}

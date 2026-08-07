@@ -2,7 +2,7 @@
 
 Eine schlanke Nextcloud-App, mit der Benutzer Ordner abonnieren und sich über neue Dateien per Push, E-Mail oder über beide Wege benachrichtigen lassen können.
 
-> Status: `0.4.0-alpha.4` wird für die erste öffentliche Alpha im Nextcloud App Store vorbereitet.
+> Status: `0.4.0-alpha.5` wird für die erste öffentliche Alpha im Nextcloud App Store vorbereitet.
 
 ## Funktionen
 

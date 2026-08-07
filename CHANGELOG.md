@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0-alpha.5] - 2026-08-07
+
 ### Added
 
 - Personal folder subscriptions with native Nextcloud folder selection.
@@ -18,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for folders shared between users, including virtual share mount paths.
 - Persistent two-minute batching of multiple uploads by recipient, uploader, and target folder.
 - English and German user-interface translations.
+
+### Fixed
+
+- Keep queued batches recoverable until every enabled delivery channel succeeds.
+- Persist successful channels separately so an email retry does not duplicate an already delivered push notification.
+- Produce checksums that reference the public GitHub release asset name.
+- Exclude both `.git` files and directories from App Store archives.
+- Align static analysis with the supported Nextcloud dependency-injection and file APIs.
 
 ### Security
 

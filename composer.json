@@ -16,7 +16,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"OCA\\FolderUploadNotifications\\Tests\\": "tests/"
+			"OCA\\FolderUploadNotifications\\Tests\\Unit\\": "tests/unit/"
 		}
 	},
 	"scripts": {

@@ -37,31 +37,12 @@ class EmailPublisher {
 	 */
 	public function publish(File $file, array $recipientUserIds, ?string $actorUserId): void {
 		foreach ($recipientUserIds as $recipientUserId) {
-			try {
-				$this->publishForUser($file, $recipientUserId, $actorUserId);
-			} catch (\Throwable $exception) {
-				// Email delivery must never make the upload itself fail or block
-				// delivery to the remaining recipients.
-				$this->logger->error('Failed to send folder upload email', [
-					'app' => Application::APP_ID,
-					'userId' => $recipientUserId,
-					'exception' => $exception,
-				]);
-			}
+			$this->publishForUser($file, $recipientUserId, $actorUserId);
 		}
 	}
 
 	public function publishBatch(NotificationBatch $batch): void {
-		try {
-			$this->publishBatchForUser($batch);
-		} catch (\Throwable $exception) {
-			$this->logger->error('Failed to send folder upload batch email', [
-				'app' => Application::APP_ID,
-				'userId' => $batch->getRecipientUserId(),
-				'batchId' => $batch->getId(),
-				'exception' => $exception,
-			]);
-		}
+		$this->publishBatchForUser($batch);
 	}
 
 	private function publishForUser(

@@ -27,12 +27,14 @@ final class NotificationBatchDispatcherTest extends TestCase {
 		$email = $this->createMock(EmailPublisher::class);
 		$email->expects(self::once())->method('publishBatch')->with($batch);
 
-		(new NotificationBatchDispatcher(
+		$dispatcher = new NotificationBatchDispatcher(
 			$this->createMock(IRootFolder::class),
 			$push,
 			$email,
 			$this->createMock(LoggerInterface::class),
-		))->dispatch($batch);
+		);
+		$dispatcher->dispatchPush($batch);
+		$dispatcher->dispatchEmail($batch);
 	}
 
 	public function testSingleFileKeepsExistingPublishersAndContent(): void {
@@ -53,12 +55,29 @@ final class NotificationBatchDispatcherTest extends TestCase {
 			->method('publish')
 			->with($file, ['alex'], 'sabi');
 
-		(new NotificationBatchDispatcher(
+		$dispatcher = new NotificationBatchDispatcher(
 			$rootFolder,
 			$push,
 			$email,
 			$this->createMock(LoggerInterface::class),
-		))->dispatch($batch);
+		);
+		$dispatcher->dispatchPush($batch);
+		$dispatcher->dispatchEmail($batch);
+	}
+
+	public function testDeliveryFailureIsPropagatedForRetry(): void {
+		$batch = $this->batch(50);
+		$push = $this->createMock(NotificationPublisher::class);
+		$push->method('publishBatch')->willThrowException(new \RuntimeException('Push unavailable'));
+		$dispatcher = new NotificationBatchDispatcher(
+			$this->createMock(IRootFolder::class),
+			$push,
+			$this->createMock(EmailPublisher::class),
+			$this->createMock(LoggerInterface::class),
+		);
+
+		$this->expectException(\RuntimeException::class);
+		$dispatcher->dispatchPush($batch);
 	}
 
 	private function batch(int $fileCount): NotificationBatch {

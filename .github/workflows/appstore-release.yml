@@ -80,14 +80,16 @@ jobs:
             --path="build/artifacts/signed/${APP_NAME}"
           tar -czf "build/artifacts/${APP_NAME}.tar.gz" \
             -C build/artifacts/signed "${APP_NAME}"
-          sha256sum "build/artifacts/${APP_NAME}.tar.gz" > "build/artifacts/${APP_NAME}-${APP_VERSION}.sha256"
+          release_asset="${APP_NAME}-${APP_VERSION}.tar.gz"
+          mv "build/artifacts/${APP_NAME}.tar.gz" "build/artifacts/${release_asset}"
+          (cd build/artifacts && sha256sum "${release_asset}" > "${APP_NAME}-${APP_VERSION}.sha256")
 
       - name: Attach archive to GitHub release
         id: attach-release
         uses: svenstaro/upload-release-action@29e53e917877a24fad85510ded594ab3c9ca12de # v2.11.5
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/artifacts/${{ env.APP_NAME }}.tar.gz
+          file: build/artifacts/${{ env.APP_NAME }}-${{ env.APP_VERSION }}.tar.gz
           asset_name: ${{ env.APP_NAME }}-${{ env.APP_VERSION }}.tar.gz
           tag: ${{ github.ref }}
           overwrite: true

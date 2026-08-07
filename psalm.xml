@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <psalm
-	errorLevel="1"
+	errorLevel="3"
 	resolveFromConfigFile="true"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="https://getpsalm.org/schema/config"
 	xsi:schemaLocation="https://getpsalm.org/schema/config vendor-bin/psalm/vendor/vimeo/psalm/config.xsd"
-	findUnusedBaselineEntry="true"
-	findUnusedCode="true"
+	findUnusedCode="false"
 	phpVersion="8.1">
 	<projectFiles>
 		<directory name="lib"/>
@@ -18,4 +17,18 @@
 	<extraFiles>
 		<directory name="vendor"/>
 	</extraFiles>
+	<issueHandlers>
+		<LessSpecificReturnStatement errorLevel="error"/>
+		<LessSpecificReturnType errorLevel="error"/>
+		<LessSpecificImplementedReturnType errorLevel="error"/>
+		<MoreSpecificReturnType errorLevel="error"/>
+		<UndefinedDocblockClass>
+			<errorLevel type="suppress">
+				<referencedClass name="Doctrine\DBAL\Schema\Table"/>
+			</errorLevel>
+		</UndefinedDocblockClass>
+	</issueHandlers>
+	<stubs>
+		<file name="tests/stubs/oc_hooks_emitter.php"/>
+	</stubs>
 </psalm>

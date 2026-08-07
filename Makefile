@@ -12,7 +12,7 @@ appstore: clean
 	@test -f js/folder_upload_notifications-settings.mjs || (echo "Missing production frontend assets; run npm ci && npm run build first." >&2; exit 1)
 	mkdir -p $(stage_dir)/$(app_name)
 	rsync -a \
-		--exclude='/.git/' \
+		--exclude='/.git' \
 		--exclude='/.github/' \
 		--exclude='/build/' \
 		--exclude='/docs/' \

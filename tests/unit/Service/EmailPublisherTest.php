@@ -115,6 +115,45 @@ final class EmailPublisherTest extends TestCase {
 		))->publish($this->createMock(File::class), ['bob'], null);
 	}
 
+	public function testMailerFailureIsPropagatedForBackgroundRetry(): void {
+		$file = $this->createMock(File::class);
+		$file->method('getId')->willReturn(99);
+		$file->method('getName')->willReturn('report.pdf');
+		$file->method('getPath')->willReturn('/bob/files/report.pdf');
+		$file->method('isReadable')->willReturn(true);
+		$userFolder = $this->createMock(Folder::class);
+		$userFolder->method('getById')->with(99)->willReturn([$file]);
+		$userFolder->method('getRelativePath')->willReturn('report.pdf');
+		$rootFolder = $this->createMock(IRootFolder::class);
+		$rootFolder->method('getUserFolder')->with('bob')->willReturn($userFolder);
+		$recipient = $this->createMock(IUser::class);
+		$recipient->method('getEMailAddress')->willReturn('bob@example.com');
+		$userManager = $this->createMock(IUserManager::class);
+		$userManager->method('get')->with('bob')->willReturn($recipient);
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnArgument(0);
+		$l10nFactory = $this->createMock(IFactory::class);
+		$l10nFactory->method('get')->willReturn($l10n);
+		$message = $this->createMock(IMessage::class);
+		$message->method('setTo')->willReturnSelf();
+		$message->method('setSubject')->willReturnSelf();
+		$message->method('setPlainBody')->willReturnSelf();
+		$mailer = $this->createMock(IMailer::class);
+		$mailer->method('createMessage')->willReturn($message);
+		$mailer->method('send')->willThrowException(new \RuntimeException('SMTP unavailable'));
+		$publisher = new EmailPublisher(
+			$mailer,
+			$userManager,
+			$rootFolder,
+			$l10nFactory,
+			$this->createMock(IURLGenerator::class),
+			$this->createMock(LoggerInterface::class),
+		);
+
+		$this->expectException(\RuntimeException::class);
+		$publisher->publish($file, ['bob'], null);
+	}
+
 	public function testSendsOneSummaryEmailForBatch(): void {
 		$folder = $this->createMock(Folder::class);
 		$folder->method('getId')->willReturn(42);

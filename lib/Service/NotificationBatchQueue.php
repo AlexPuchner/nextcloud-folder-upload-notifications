@@ -39,8 +39,8 @@ class NotificationBatchQueue {
 			return;
 		}
 
-		$folderFileId = (int)$folder->getId();
-		$lastFileId = (int)$file->getId();
+		$folderFileId = $folder->getId();
+		$lastFileId = $file->getId();
 		if ($folderFileId <= 0 || $lastFileId <= 0) {
 			return;
 		}

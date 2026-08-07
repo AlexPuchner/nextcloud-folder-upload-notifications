@@ -33,9 +33,10 @@ class FlushNotificationBatchJob extends QueuedJob {
 
 	/** @param mixed $argument */
 	protected function run($argument): void {
-		$batchId = is_array($argument) && is_int($argument['batchId'] ?? null)
-			? $argument['batchId']
-			: 0;
+		$batchId = 0;
+		if (is_array($argument) && is_int($argument['batchId'] ?? null)) {
+			$batchId = $argument['batchId'];
+		}
 		if ($batchId <= 0) {
 			return;
 		}
@@ -71,23 +72,34 @@ class FlushNotificationBatchJob extends QueuedJob {
 			return;
 		}
 
-		// Claim an immutable snapshot. If an upload races with this job, reload
-		// the incremented row instead of dropping that file from the batch.
-		for ($attempt = 0; $attempt < 3; $attempt++) {
-			if ($this->batchMapper->deleteIfRevision($batchId, $batch->getRevision()) > 0) {
-				$this->dispatcher->dispatch($batch);
+		$revision = $batch->getRevision();
+		if ($batch->getNotifyPush()) {
+			$this->dispatcher->dispatchPush($batch);
+			if ($this->batchMapper->clearPushIfRevision($batchId, $revision) === 0) {
+				$this->rescheduleChangedBatch($batchId, $now);
 
 				return;
 			}
-
-			try {
-				$batch = $this->batchMapper->find($batchId);
-			} catch (DoesNotExistException) {
-				return;
-			}
+			$batch->setNotifyPush(false);
 		}
 
-		$this->logger->warning('Folder upload notification batch changed repeatedly while being flushed', [
+		if ($batch->getNotifyEmail()) {
+			$this->dispatcher->dispatchEmail($batch);
+			if ($this->batchMapper->clearEmailIfRevision($batchId, $revision) === 0) {
+				$this->rescheduleChangedBatch($batchId, $now);
+
+				return;
+			}
+			$batch->setNotifyEmail(false);
+		}
+
+		if ($this->batchMapper->deleteIfRevision($batchId, $revision) === 0) {
+			$this->rescheduleChangedBatch($batchId, $now);
+		}
+	}
+
+	private function rescheduleChangedBatch(int $batchId, int $now): void {
+		$this->logger->info('Folder upload notification batch changed while being flushed', [
 			'app' => Application::APP_ID,
 			'batchId' => $batchId,
 		]);
