@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
+  compatibility:
+    name: PHP ${{ matrix.php-version }} syntax
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,11 +38,40 @@ jobs:
       - name: PHP syntax
         run: composer lint
 
+  quality:
+    name: Coding standard, static analysis, and unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
       - name: Coding standard
         run: composer cs:check
 
       - name: Static analysis
         run: composer psalm
+
+      - name: Download Nextcloud 32 test runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --show-error --retry 3 \
+            https://download.nextcloud.com/server/releases/latest-32.tar.bz2 \
+            --output nextcloud.tar.bz2
+          mkdir -p .nextcloud-runtime
+          tar -xjf nextcloud.tar.bz2 -C .nextcloud-runtime
+          test -f .nextcloud-runtime/nextcloud/lib/composer/autoload.php
+          echo "NEXTCLOUD_ROOT=${GITHUB_WORKSPACE}/.nextcloud-runtime/nextcloud" >> "${GITHUB_ENV}"
 
       - name: Unit tests
         run: composer test:unit
